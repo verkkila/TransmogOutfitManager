@@ -1,0 +1,6 @@
+## Interface: 40400
+## Version: 1.0.0
+## Title: TransmogOutfitManager
+## Notes: Saves your custom transmogs as preset outfits
+
+TransmogOutfitManager.lua
