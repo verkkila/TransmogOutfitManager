@@ -1,4 +1,5 @@
-local validSlots = {1,3,4,5,6,7,8,9,10,15,16,17,18,19}
+local DROPDOWN_RENAME = 1
+local DROPDOWN_DELETE = 2
 local slotIdToName = {[1] = "HEADSLOT",
 					  [3] = "SHOULDERSLOT",
 					  [4] = "SHIRTSLOT",
@@ -14,24 +15,33 @@ local slotIdToName = {[1] = "HEADSLOT",
 					  [18] = "RANGEDSLOT",
 					  [19] = "TABARDSLOT"}
 local outfitFrames = {}
+local activeModelFrame = nil
 MyOutfits = {}
 
+local function getTransmogId(slot)
+	if slot.hasUndo then return slot.base
+	elseif slot.pending ~= 0 then return slot.pending
+	elseif slot.applied ~= 0 then return slot.applied
+	else return slot.base end
+end
+
 local function TOM_OutfitContainer_OnShow()
-	local numOutfits = table.getn(MyOutfits)
-	i = 1
-	for outfitName, slotInfoList in pairs(MyOutfits) do
-		if i > 8 then return end
-		print("Applying outfit " .. outfitName .. " to frame " .. outfitFrames[i]:GetName())
-		outfitFrames[i]:Show()
-		outfitFrames[i].OutfitName:SetText(outfitName)
-		outfitFrames[i].OutfitName:Show()
-		outfitFrames[i]:Undress()
-		for slotId, slotData in pairs(slotInfoList) do
-			if slotData.applied > 0 then
-				outfitFrames[i]:TryOn(slotData.applied)
+	local nextFrame = 1
+	for i = 1, 8 do outfitFrames[i]:Hide() end
+	for _, outfit in pairs(MyOutfits) do
+		outfitFrames[nextFrame]:Show()
+		outfitFrames[nextFrame].OutfitName:SetText(outfit.name)
+		outfitFrames[nextFrame].OutfitName:Show()
+		outfitFrames[nextFrame]:Undress()
+		for invSlotName, invSlotData in pairs(outfit.data) do
+			print(invSlotName, invSlotData.pending, invSlotData.base, invSlotData.applied)
+			local transmogId = getTransmogId(invSlotData)
+			if transmogId > 0 then
+				outfitFrames[nextFrame]:TryOn(tonumber(transmogId))
 			end
 		end
-		i = i + 1
+		nextFrame = nextFrame + 1
+		if nextFrame > 8 then nextFrame = 1 end
 	end
 end
 
@@ -47,49 +57,93 @@ local function TOM_OutfitNameInput_OnEscapePressed(self)
 	self:ClearFocus()
 end
 
+local function isValidName(name)
+	local nameLength = string.len(name)
+	if nameLength == 0 or nameLength > 15 then
+		return false
+	else
+		return true
+	end
+end
+
+local function TOM_OutfitNameInput_OnTextChanged(self, userInput)
+	TOM_SaveOutfitButton:SetEnabled(isValidName(TOM_OutfitNameInput:GetText()))
+end
+
 local function TOM_SaveOutfitButton_OnClick(self, button, down)
 	local outfitName = TOM_OutfitNameInput:GetText()
 	if outfitName == "" then return end
-	MyOutfits[outfitName] = {}
-	for i, slot in ipairs(validSlots) do
-		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID=slot, type=0, modification=0})
-		local slotStr = tostring(slot)
-		MyOutfits[outfitName][slotStr] = {base=baseSourceID, applied=appliedSourceID, pending=pendingSourceID, hasUndo=hasUndo}
+	local slotData = {}
+	for slotId, slotName in pairs(slotIdToName) do
+		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
+		slotData[slotName] = {base=baseSourceID, applied=appliedSourceID, pending=pendingSourceID, hasUndo=hasUndo}
 	end
+	table.insert(MyOutfits, {name=outfitName, data=slotData})
+	TOM_OutfitContainer_OnShow()
 end
 
 local function TOM_Outfit_OnMouseDown(self, button)
 	if button == "LeftButton" then
 		local outfitName = GetMouseFocus().OutfitName:GetText()
-		local outfitData = MyOutfits[outfitName]
-		print(outfitData)
-		for k, v in pairs(outfitData) do
-			print(k, v, slotIdToName[tonumber(k)])
-			local transmogLoc = TransmogUtil.CreateTransmogLocation(slotIdToName[tonumber(k)], Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
-			local transmogPendingInfo = TransmogUtil.CreateTransmogPendingInfo(Enum.TransmogPendingType.Apply, v.applied)
-			C_Transmog.ClearPending(transmogLoc)
-			local _, _, _, canTransmog = C_Transmog.GetSlotInfo(transmogLoc)
-			if canTransmog and v.applied then
-				C_Transmog.SetPending(transmogLoc, TransmogUtil.CreateTransmogPendingInfo(Enum.TransmogPendingType.Apply, v.applied))
+		if not outfitName then return end
+		local outfitData = nil
+		for _, outfit in pairs(MyOutfits) do
+			if outfitName == outfit.name then
+				for invSlotName, invSlotData in pairs(outfit.data) do
+					local transmogLoc = TransmogUtil.CreateTransmogLocation(invSlotName, Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
+					C_Transmog.ClearPending(transmogLoc)
+					local _, _, _, canTransmog = C_Transmog.GetSlotInfo(transmogLoc)
+					local id = getTransmogId(invSlotData)
+					if canTransmog and id then
+						C_Transmog.SetPending(transmogLoc, TransmogUtil.CreateTransmogPendingInfo(Enum.TransmogPendingType.Apply, id))
+					end
+				end
 			end
 		end
 	elseif button == "RightButton" then
+		activeModelFrame = GetMouseFocus()
 		ToggleDropDownMenu(1, nil, TOM_OutfitDropdownMenu, GetMouseFocus():GetName(), 0, 0)
 	end
 end
 
-local function onDropdownMenuItemClicked(value)
+local function renameOutfit(newName)
+	for _, outfit in pairs(MyOutfits) do
+		if outfit.name == activeModelFrame.OutfitName:GetText() then
+			activeModelFrame.OutfitName:SetText(newName)
+			outfit.name = newName
+		end
+	end
+end
 
+local function deleteOutfit()
+	for i, outfit in ipairs(MyOutfits) do
+		if MyOutfits[i].name == activeModelFrame.OutfitName:GetText() then
+			MyOutfits[i] = nil
+			activeModelFrame:Hide()
+			TOM_OutfitContainer_OnShow()
+		end
+	end
+end
+
+local function onDropdownMenuItemClicked(selectedItem)
+	if selectedItem.value == DROPDOWN_RENAME then
+		StaticPopup_Show("TOM_RenameOutfit")
+	elseif selectedItem.value == DROPDOWN_DELETE then
+		StaticPopupDialogs["TOM_DeleteOutfit"].text = "Delete outfit \'"..activeModelFrame.OutfitName:GetText().."\'?"
+		StaticPopup_Show("TOM_DeleteOutfit")
+	end
 end
 
 local function TOM_OutfitDropdownMenu_Handler()
 	local renameMenuItem = {}
 	renameMenuItem.text = "Rename"
 	renameMenuItem.value = 1
+	renameMenuItem.notCheckable = true
 	renameMenuItem.func = onDropdownMenuItemClicked
 	local deleteMenuItem = {}
 	deleteMenuItem.text = "Delete"
 	deleteMenuItem.value = 2
+	deleteMenuItem.notCheckable = true
 	deleteMenuItem.func = onDropdownMenuItemClicked
 	UIDropDownMenu_AddButton(renameMenuItem)
 	UIDropDownMenu_AddButton(deleteMenuItem)
@@ -107,6 +161,7 @@ TOM_OutfitNameInput:ClearAllPoints()
 TOM_OutfitNameInput:SetPoint("TOPLEFT", 70, -55)
 TOM_OutfitNameInput:SetSize(175, 35)
 TOM_OutfitNameInput:SetAutoFocus(false)
+TOM_OutfitNameInput:SetScript("OnTextChanged", TOM_OutfitNameInput_OnTextChanged)
 
 TOM_SaveOutfitButton = CreateFrame("Button", "TOM_SaveOutfitButton", WardrobeFrame, "UIPanelButtonTemplate")
 TOM_SaveOutfitButton:ClearAllPoints()
@@ -123,6 +178,7 @@ TOM_OutfitContainer:SetFrameLevel(6)
 TOM_OutfitContainer:SetMovable(true)
 TOM_OutfitContainer:EnableMouse(true)
 TOM_OutfitContainer:RegisterForDrag("LeftButton")
+TOM_OutfitContainer:SetScript("OnEvent", TOM_OnEvent)
 TOM_OutfitContainer:SetScript("OnShow", TOM_OutfitContainer_OnShow)
 TOM_OutfitContainer:SetScript("OnDragStart", function(self, button)
 	self:StartMoving()
@@ -342,3 +398,39 @@ outfitFrames[8] = TOM_Outfit8
 TOM_OutfitDropdownMenu = CreateFrame("Frame", "TOM_OutfitDropdownMenu", TOM_OutfitContainer, "UIDropDownMenuTemplate")
 UIDropDownMenu_Initialize(TOM_OutfitDropdownMenu, TOM_OutfitDropdownMenu_Handler, "MENU")
 TOM_OutfitDropdownMenu:Hide()
+
+StaticPopupDialogs["TOM_RenameOutfit"] = {
+	text = "Enter new name for outfit",
+	button1 = "Rename",
+	button2 = "Cancel",
+	enterClicksFirstButton = true,
+	hasEditBox = true,
+	OnShow = function(self, data)
+		self.button1:Disable()
+	end,
+	EditBoxOnTextChanged = function(self, data)
+		if isValidName(self:GetText()) then
+			self:GetParent().button1:Enable()
+		end
+	end,
+	OnAccept = function(self, data, data2)
+		renameOutfit(self.editBox:GetText())
+	end,
+	timeout = 0,
+	whileDead = false,
+	hideOnEscape = true,
+	preferredIndex = 3
+}
+
+StaticPopupDialogs["TOM_DeleteOutfit"] = {
+	text = "---",
+	button1 = "Yes",
+	button2 = "No",
+	OnAccept = function()
+		deleteOutfit()
+	end,
+	timeout = 0,
+	whileDead = false,
+	hideOnEscape = true,
+	preferredIndex = 3
+}
