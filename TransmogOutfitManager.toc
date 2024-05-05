@@ -2,6 +2,7 @@
 ## Version: 1.0.0
 ## Title: TransmogOutfitManager
 ## Notes: Saves your custom transmogs as preset outfits
+## SavedVariablesPerCharacter: MyOutfits
 ## LoadOnDemand: 1
 ## LoadWith: Blizzard_Collections
 
