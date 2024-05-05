@@ -42,3 +42,10 @@ function TOM_NumSavedOutfits()
 	end
 	return count
 end
+
+function TOM_OutfitExistsByName(name)
+	for _, outfit in pairs(MyOutfits) do
+		if outfit.name == name then return true end
+	end
+	return false
+end

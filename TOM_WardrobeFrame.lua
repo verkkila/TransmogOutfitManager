@@ -22,8 +22,17 @@ local function TOM_SaveOutfitButton_OnClick(self, button, down)
 		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
 		slotData[slotName] = {base=baseSourceID, applied=appliedSourceID, pending=pendingSourceID, hasUndo=hasUndo}
 	end
-	table.insert(MyOutfits, {name=outfitName, data=slotData})
-	if TOM_NumSavedOutfits() >= 8 then TOM_SaveOutfitButton:SetEnabled(false) end -- Remove this when paging is implemented
+	if TOM_OutfitExistsByName(outfitName) then
+		StaticPopupDialogs["TOM_OverwriteOutfit"].text = "Overwrite \'" .. outfitName .. "\'?"
+		local dialog = StaticPopup_Show("TOM_OverwriteOutfit")
+		if dialog then
+			dialog.data = outfitName
+			dialog.data2 = slotData
+		end
+	else
+		table.insert(MyOutfits, {name=outfitName, data=slotData})
+		if TOM_NumSavedOutfits() >= 8 then TOM_SaveOutfitButton:SetEnabled(false) end -- Remove this when paging is implemented
+	end
 	TOM_OutfitContainer_OnShow()
 end
 

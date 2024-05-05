@@ -1,4 +1,4 @@
-function renameOutfit(newName)
+local function renameOutfit(newName)
 	for _, outfit in pairs(MyOutfits) do
 		if outfit.name == TOM.activeModelFrame.OutfitName:GetText() then
 			TOM.activeModelFrame.OutfitName:SetText(newName)
@@ -7,7 +7,7 @@ function renameOutfit(newName)
 	end
 end
 
-function deleteOutfit()
+local function deleteOutfit()
 	for i, outfit in ipairs(MyOutfits) do
 		if MyOutfits[i].name == TOM.activeModelFrame.OutfitName:GetText() then
 			MyOutfits[i] = nil
@@ -16,6 +16,15 @@ function deleteOutfit()
 		end
 	end
 	if TOM_NumSavedOutfits() < 8 then TOM_SaveOutfitButton:SetEnabled(true) end
+end
+
+local function overwriteOutfit(self, outfitName, slotData)
+	for _, outfit in pairs(MyOutfits) do
+		if outfit.name == outfitName then
+			outfit.data = slotData
+			TOM_OutfitContainer_OnShow()
+		end
+	end
 end
 
 StaticPopupDialogs["TOM_RenameOutfit"] = {
@@ -47,6 +56,19 @@ StaticPopupDialogs["TOM_DeleteOutfit"] = {
 	button2 = "No",
 	OnAccept = function()
 		deleteOutfit()
+	end,
+	timeout = 0,
+	whileDead = false,
+	hideOnEscape = true,
+	preferredIndex = 3
+}
+
+StaticPopupDialogs["TOM_OverwriteOutfit"] = {
+	text = "---",
+	button1 = "Yes",
+	button2 = "No",
+	OnAccept = function(self, data, data2)
+		overwriteOutfit(self, data, data2)
 	end,
 	timeout = 0,
 	whileDead = false,
