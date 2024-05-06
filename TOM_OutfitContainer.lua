@@ -46,37 +46,30 @@ function TOM.PreviewModel_OnMouseDown(self, button)
 		end
 	elseif button == "RightButton" then
 		TOM.activeModelFrame = GetMouseFocus()
-		ToggleDropDownMenu(1, nil, TOM.OutfitDropdownMenu, GetMouseFocus():GetName(), 0, 0)
+		ToggleDropDownMenu(1, nil, TOM.OutfitDropdownMenu, "cursor", 3, -3)
 	end
 end
 
-local function onDropdownMenuItemClicked(selectedItem)
-	if selectedItem.value == TOM.DROPDOWN_RENAME then
+local function onDropdownMenuItemClicked(self, arg1, arg2)
+	if arg1 == TOM.DROPDOWN_RENAME then
 		StaticPopup_Show("TOM_RenameOutfit")
-	elseif selectedItem.value == TOM.DROPDOWN_DELETE then
+	elseif arg1 == TOM.DROPDOWN_DELETE then
 		StaticPopupDialogs["TOM_DeleteOutfit"].text = "Delete outfit \'" .. TOM.activeModelFrame.OutfitName:GetText() .. "\'?"
 		StaticPopup_Show("TOM_DeleteOutfit")
 	end
 end
 
-local function TOM_OutfitDropdownMenu_Init()
-	local renameMenuItem = {
-					text = "Rename",
-					value = TOM.DROPDOWN_RENAME,
-					notCheckable = true,
-					func = onDropdownMenuItemClicked
-	}
-	local deleteMenuItem = {
-					text = "Delete",
-					value = TOM.DROPDOWN_DELETE,
-					notCheckable = true,
-					func = onDropdownMenuItemClicked
-	}
-	UIDropDownMenu_AddButton(renameMenuItem)
-	UIDropDownMenu_AddButton(deleteMenuItem)
+local function initDropdownMenu(frame, level, menuList)
+	local info = UIDropDownMenu_CreateInfo()
+	info.func = onDropdownMenuItemClicked
+	info.notCheckable = true
+	info.text, info.arg1 = "Rename", TOM.DROPDOWN_RENAME
+	UIDropDownMenu_AddButton(info)
+	info.text, info.arg1 = "Delete", TOM.DROPDOWN_DELETE
+	UIDropDownMenu_AddButton(info)
 end
 
-TOM.OutfitContainer = CreateFrame("Frame", nil, WardrobeFrame, "CollectionsBackgroundTemplate") -- We don't need the frame to have a global name EXCEPT if we intend to make it ESC-able
+TOM.OutfitContainer = CreateFrame("Frame", nil, WardrobeFrame, "CollectionsBackgroundTemplate")
 TOM.OutfitContainer:ClearAllPoints()
 TOM.OutfitContainer:SetPoint("TOPLEFT", WardrobeFrame, "TOPRIGHT", 10, 0)
 TOM.OutfitContainer:SetSize(600, 500)
@@ -95,7 +88,6 @@ TOM.OutfitContainer:SetScript("OnHide", function(self) -- prevent "sticky" frame
 	self:StopMovingOrSizing()
 end)
 TOM.OutfitContainer:Hide()
-
-TOM.OutfitDropdownMenu = CreateFrame("Frame", nil, TOM.OutfitContainer, "UIDropDownMenuTemplate")
-UIDropDownMenu_Initialize(TOM.OutfitDropdownMenu, TOM_OutfitDropdownMenu_Init, "MENU")
-TOM.OutfitDropdownMenu:Hide()
+--Context menu frame must be named, TODO: add check to make sure frame doesn't already exist
+TOM.OutfitDropdownMenu = CreateFrame("Frame", "TransmogOutfitManagerOutfitDropdown", TOM.OutfitContainer, "UIDropDownMenuTemplate")
+UIDropDownMenu_Initialize(TOM.OutfitDropdownMenu, initDropdownMenu, "MENU")
