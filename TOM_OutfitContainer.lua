@@ -1,5 +1,6 @@
 local addonName, TOM = ...
 
+--TODO split this function into several smaller ones
 function TOM.OutfitContainer_OnShow(self)
 	TOM.SetPageText()
 	TOM.SetPageButtons()
@@ -9,6 +10,11 @@ function TOM.OutfitContainer_OnShow(self)
 			local index = ((TOM.GetCurrentPage() - 1) * 8) + ((row - 1) * 4 + column) --quite the expression
 			local outfit = TransmogOutfitManagerDB[index]
 			if outfit then
+				if TOM.selectedOutfit == outfit.name then
+					TOM.SetBorderByModelPosition(row, column, TOM.BORDERTYPE_SELECTED)
+				else
+					TOM.SetBorderByModelPosition(row, column)
+				end
 				TOM.GetPreviewModelFrame(row, column):Show()
 				TOM.GetPreviewModelFrame(row, column).OutfitName:SetText(outfit.name)
 				TOM.GetPreviewModelFrame(row, column).OutfitName:Show()
@@ -33,6 +39,7 @@ function TOM.PreviewModel_OnMouseDown(self, button)
 		local outfitData = nil
 		for _, outfit in pairs(TransmogOutfitManagerDB) do
 			if outfitName == outfit.name then
+				TOM.selectedOutfit = outfit.name
 				for invSlotName, invSlotData in pairs(outfit.data) do
 					local transmogLoc = TransmogUtil.CreateTransmogLocation(invSlotName, Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
 					C_Transmog.ClearPending(transmogLoc)
@@ -44,6 +51,7 @@ function TOM.PreviewModel_OnMouseDown(self, button)
 				end
 			end
 		end
+		TOM.OutfitContainer_OnShow()
 	elseif button == "RightButton" then
 		TOM.activeModelFrame = GetMouseFocus()
 		ToggleDropDownMenu(1, nil, TOM.OutfitDropdownMenu, "cursor", 3, -3)
@@ -86,6 +94,9 @@ TOM.OutfitContainer:SetScript("OnDragStop", function(self, button)
 end)
 TOM.OutfitContainer:SetScript("OnHide", function(self) -- prevent "sticky" frame if it's hidden while dragging
 	self:StopMovingOrSizing()
+end)
+WardrobeFrame:HookScript("OnHide", function()
+	TOM.selectedOutfit = nil
 end)
 TOM.OutfitContainer:Hide()
 --Context menu frame must be named, TODO: add check to make sure frame doesn't already exist

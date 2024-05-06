@@ -1,5 +1,5 @@
 local addonName, TOM = ...
--- this module could be refactored to a row by column generator method
+-- TODO refactor this module
 
 TOM.previewModelFrames = {}
 
@@ -9,13 +9,27 @@ function TOM.GetPreviewModelFrame(row, column)
 	return TOM.previewModelFrames[(row-1)*4+column]
 end
 
-------------------
---ROW 1 COLUMN 1--
-------------------
--- small memory gains when we pass a reference to an array than instantiating separate anonymous arrays
+function TOM.SetBorderByModelPosition(row, column, borderType)
+	local borderFile = "Interface\\Addons\\TransmogOutfitManager\\assets\\border-default.blp"
+	if borderType == TOM.BORDERTYPE_APPLIED then borderFile = "Interface\\Addons\\TransmogOutfitManager\\assets\\border-applied.blp" end
+	if borderType == TOM.BORDERTYPE_SELECTED then borderFile = "Interface\\Addons\\TransmogOutfitManager\\assets\\border-selected.blp" end
+	TOM.previewModelFrames[(row-1)*4+column]:SetBackdrop({bgFile="Interface/Tooltips/UI-Tooltip-Background",
+															edgeFile=borderFile,
+															tile=true,
+															tileSize=16,
+															edgeSize=16,
+															insets={
+																left=1,
+																right=1,
+																top=1,
+																bottom=1}}
+	)
+	TOM.previewModelFrames[(row-1)*4+column]:SetBackdropColor(0, 0, 0, 1)
+end
+
 local backdrop = {
 	bgFile="Interface/Tooltips/UI-Tooltip-Background",
-	edgeFile="Interface/Tooltips/UI-Tooltip-Border",
+	edgeFile="Interface\\Addons\\TransmogOutfitManager\\assets\\border-default.blp",
 	tile=true,
 	tileSize=16,
 	edgeSize=16,
@@ -25,6 +39,9 @@ local backdrop = {
 		top=1,
 		bottom=1}
 }
+------------------
+--ROW 1 COLUMN 1--
+------------------
 TOM.PreviewModel_R1C1 = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
 TOM.PreviewModel_R1C1:SetSize(125, 175)
 TOM.PreviewModel_R1C1:SetBackdrop(backdrop)
