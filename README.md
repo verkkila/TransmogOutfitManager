@@ -10,5 +10,4 @@ Sets are stored on a per-character basis in the WTF folder, specifically under `
 Inspired by [Transmog Outfits](https://www.curseforge.com/wow/addons/transmog-outfits)
 
 ### Limitations / To-Do
-- Only 8 sets can be saved for the time being
 - UI has room for QoL improvements
