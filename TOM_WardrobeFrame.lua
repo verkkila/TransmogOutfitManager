@@ -11,7 +11,7 @@ local function TOM_OutfitNameInput_OnEscapePressed(self)
 end
 
 local function TOM_OutfitNameInput_OnTextChanged(self, userInput)
-	TOM_SaveOutfitButton:SetEnabled(TOM_IsValidName(TOM_OutfitNameInput:GetText()) and TOM_NumSavedOutfits() < 8)
+	TOM_SaveOutfitButton:SetEnabled(TOM_IsValidName(TOM_OutfitNameInput:GetText()))
 end
 
 local function TOM_SaveOutfitButton_OnClick(self, button, down)
@@ -31,7 +31,6 @@ local function TOM_SaveOutfitButton_OnClick(self, button, down)
 		end
 	else
 		table.insert(MyOutfits, {name=outfitName, data=slotData})
-		if TOM_NumSavedOutfits() >= 8 then TOM_SaveOutfitButton:SetEnabled(false) end -- Remove this when paging is implemented
 	end
 	TOM_OutfitContainer_OnShow()
 end

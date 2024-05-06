@@ -1,4 +1,24 @@
 function TOM_OutfitContainer_OnShow()
+	TOM_SetPageText()
+	TOM_SetPageButtons()
+	for row = 1, 2 do
+		for column = 1, 4 do
+			local index = ((TOM_GetCurrentPage() - 1) * 8) + ((row - 1) * 4 + column) --quite the expression
+			local outfit = MyOutfits[index]
+			if outfit then
+				TOM_GetPreviewModelFrame(row, column):Show()
+				TOM_GetPreviewModelFrame(row, column).OutfitName:SetText(outfit.name)
+				TOM_GetPreviewModelFrame(row, column).OutfitName:Show()
+				TOM_GetPreviewModelFrame(row, column):Undress()
+			else
+				TOM_GetPreviewModelFrame(row, column):Hide()
+			end
+		end
+	end
+end
+
+--[[
+function TOM_OutfitContainer_OnShow()
 	local nextFrame = 1
 	for i = 1, 8 do TOM_GetPreviewModelFrame(i):Hide() end
 	for _, outfit in pairs(MyOutfits) do
@@ -15,7 +35,9 @@ function TOM_OutfitContainer_OnShow()
 		nextFrame = nextFrame + 1
 		if nextFrame > 8 then nextFrame = 1 end
 	end
+	TOM_SetPageText()
 end
+]]--
 
 function TOM_Outfit_OnMouseDown(self, button)
 	if button == "LeftButton" then

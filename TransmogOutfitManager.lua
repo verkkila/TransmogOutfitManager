@@ -10,12 +10,11 @@ end
 local function deleteOutfit()
 	for i, outfit in ipairs(MyOutfits) do
 		if MyOutfits[i].name == TOM.activeModelFrame.OutfitName:GetText() then
-			MyOutfits[i] = nil
+			table.remove(MyOutfits, i)
 			TOM.activeModelFrame:Hide()
 			TOM_OutfitContainer_OnShow()
 		end
 	end
-	if TOM_NumSavedOutfits() < 8 then TOM_SaveOutfitButton:SetEnabled(true) end
 end
 
 local function overwriteOutfit(self, outfitName, slotData)

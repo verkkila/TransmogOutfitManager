@@ -1,7 +1,15 @@
 TOM.previewModelFrames = {}
 
+--[[
 function TOM_GetPreviewModelFrame(index)
 	return TOM.previewModelFrames[index]
+end
+--]]
+
+function TOM_GetPreviewModelFrame(row, column)
+	if row < 1 or row > 2 then return nil end
+	if column < 1 or column > 4 then return nil end
+	return TOM.previewModelFrames[(row-1)*4+column]
 end
 
 ------------------
