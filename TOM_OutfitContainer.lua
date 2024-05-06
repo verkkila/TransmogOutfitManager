@@ -69,7 +69,7 @@ end
 
 TOM_OutfitContainer = CreateFrame("Frame", "TOM_OutfitContainer", WardrobeFrame, "CollectionsBackgroundTemplate")
 TOM_OutfitContainer:ClearAllPoints()
-TOM_OutfitContainer:SetPoint("CENTER", UIParent)
+TOM_OutfitContainer:SetPoint("TOPLEFT", WardrobeFrame, "TOPRIGHT", 10, 0)
 TOM_OutfitContainer:SetSize(600, 500)
 TOM_OutfitContainer:SetFrameLevel(6)
 TOM_OutfitContainer:SetMovable(true)
