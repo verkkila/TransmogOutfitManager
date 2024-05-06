@@ -1,0 +1,11 @@
+TOM_PreviousPageButton = CreateFrame("Button", "TOM_PreviousPageButton", TOM_OutfitContainer, "CollectionsPrevPageButton")
+TOM_PreviousPageButton:ClearAllPoints()
+TOM_PreviousPageButton:SetPoint("CENTER", TOM_OutfitContainer, "BOTTOM", 20, 40)
+TOM_NextPageButton = CreateFrame("Button", "TOM_NextPageButton", TOM_OutfitContainer, "CollectionsNextPageButton")
+TOM_NextPageButton:ClearAllPoints()
+TOM_NextPageButton:SetPoint("CENTER", TOM_OutfitContainer, "BOTTOM", 60, 40)
+
+TOM_OutfitContainer.CurrentPage = TOM_OutfitContainer:CreateFontString("TOM_CurrentPageLabel", "OVERLAY", "GameTooltipText")
+TOM_OutfitContainer.CurrentPage:ClearAllPoints()
+TOM_OutfitContainer.CurrentPage:SetPoint("CENTER", TOM_OutfitContainer, "BOTTOM", -40, 40)
+TOM_OutfitContainer.CurrentPage:SetText("Page 1 / 3")
