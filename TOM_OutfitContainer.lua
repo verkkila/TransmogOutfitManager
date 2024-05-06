@@ -1,6 +1,7 @@
 function TOM_OutfitContainer_OnShow()
 	TOM_SetPageText()
 	TOM_SetPageButtons()
+	if TOM_GetCurrentPage() > TOM_NumPages() then TOM_PreviousPageButton:Click("LeftButton") end
 	for row = 1, 2 do
 		for column = 1, 4 do
 			local index = ((TOM_GetCurrentPage() - 1) * 8) + ((row - 1) * 4 + column) --quite the expression

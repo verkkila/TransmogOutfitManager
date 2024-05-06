@@ -27,7 +27,8 @@ function TOM_SetPageButtons()
 	end
 end
 
-local function TOM_PreviousPageButton_OnClick()
+local function TOM_PreviousPageButton_OnClick(self, button, down)
+	if button ~= "LeftButton" then return end
 	if currentPage > 1 then
 		currentPage = currentPage - 1
 		TOM_NextPageButton:SetEnabled(true)
@@ -37,7 +38,8 @@ local function TOM_PreviousPageButton_OnClick()
 	TOM_SetPageText()
 end
 
-local function TOM_NextPageButton_OnClick()
+local function TOM_NextPageButton_OnClick(self, button, down)
+	if button ~= "LeftButton" then return end
 	if currentPage < math.ceil(TOM_NumSavedOutfits() / 8) then
 		currentPage = currentPage + 1
 		TOM_PreviousPageButton:SetEnabled(true)
