@@ -1,41 +1,43 @@
-function TOM_OutfitContainer_OnShow(self)
-	TOM_SetPageText()
-	TOM_SetPageButtons()
-	if TOM_GetCurrentPage() > TOM_NumPages() then TOM_PreviousPageButton:Click("LeftButton") end
+local addonName, TOM = ...
+
+function TOM.OutfitContainer_OnShow(self)
+	TOM.SetPageText()
+	TOM.SetPageButtons()
+	if TOM.GetCurrentPage() > TOM.NumPages() then TOM.PreviousPageButton:Click("LeftButton") end
 	for row = 1, 2 do
 		for column = 1, 4 do
-			local index = ((TOM_GetCurrentPage() - 1) * 8) + ((row - 1) * 4 + column) --quite the expression
-			local outfit = MyOutfits[index]
+			local index = ((TOM.GetCurrentPage() - 1) * 8) + ((row - 1) * 4 + column) --quite the expression
+			local outfit = TransmogOutfitManagerDB[index]
 			if outfit then
-				TOM_GetPreviewModelFrame(row, column):Show()
-				TOM_GetPreviewModelFrame(row, column).OutfitName:SetText(outfit.name)
-				TOM_GetPreviewModelFrame(row, column).OutfitName:Show()
-				TOM_GetPreviewModelFrame(row, column):Undress()
+				TOM.GetPreviewModelFrame(row, column):Show()
+				TOM.GetPreviewModelFrame(row, column).OutfitName:SetText(outfit.name)
+				TOM.GetPreviewModelFrame(row, column).OutfitName:Show()
+				TOM.GetPreviewModelFrame(row, column):Undress()
 				for invSlotName, invSlotData in pairs(outfit.data) do
-					local transmogId = TOM_GetTransmogId(invSlotData)
+					local transmogId = TOM.GetTransmogId(invSlotData)
 					if transmogId > 0 then
-						TOM_GetPreviewModelFrame(row, column):TryOn(transmogId)
+						TOM.GetPreviewModelFrame(row, column):TryOn(transmogId)
 					end
 				end
 			else
-				TOM_GetPreviewModelFrame(row, column):Hide()
+				TOM.GetPreviewModelFrame(row, column):Hide()
 			end
 		end
 	end
 end
 
-function TOM_PreviewModel_OnMouseDown(self, button)
+function TOM.PreviewModel_OnMouseDown(self, button)
 	if button == "LeftButton" then
 		local outfitName = GetMouseFocus().OutfitName:GetText()
 		if not outfitName then return end
 		local outfitData = nil
-		for _, outfit in pairs(MyOutfits) do
+		for _, outfit in pairs(TransmogOutfitManagerDB) do
 			if outfitName == outfit.name then
 				for invSlotName, invSlotData in pairs(outfit.data) do
 					local transmogLoc = TransmogUtil.CreateTransmogLocation(invSlotName, Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
 					C_Transmog.ClearPending(transmogLoc)
 					local _, _, _, canTransmog = C_Transmog.GetSlotInfo(transmogLoc)
-					local id = TOM_GetTransmogId(invSlotData)
+					local id = TOM.GetTransmogId(invSlotData)
 					if canTransmog and id then
 						C_Transmog.SetPending(transmogLoc, TransmogUtil.CreateTransmogPendingInfo(Enum.TransmogPendingType.Apply, id))
 					end
@@ -44,7 +46,7 @@ function TOM_PreviewModel_OnMouseDown(self, button)
 		end
 	elseif button == "RightButton" then
 		TOM.activeModelFrame = GetMouseFocus()
-		ToggleDropDownMenu(1, nil, TOM_OutfitDropdownMenu, GetMouseFocus():GetName(), 0, 0)
+		ToggleDropDownMenu(1, nil, TOM.OutfitDropdownMenu, GetMouseFocus():GetName(), 0, 0)
 	end
 end
 
@@ -74,23 +76,26 @@ local function TOM_OutfitDropdownMenu_Init()
 	UIDropDownMenu_AddButton(deleteMenuItem)
 end
 
-TOM_OutfitContainer = CreateFrame("Frame", "TOM_OutfitContainer", WardrobeFrame, "CollectionsBackgroundTemplate")
-TOM_OutfitContainer:ClearAllPoints()
-TOM_OutfitContainer:SetPoint("TOPLEFT", WardrobeFrame, "TOPRIGHT", 10, 0)
-TOM_OutfitContainer:SetSize(600, 500)
-TOM_OutfitContainer:SetFrameLevel(6)
-TOM_OutfitContainer:SetMovable(true)
-TOM_OutfitContainer:EnableMouse(true)
-TOM_OutfitContainer:RegisterForDrag("LeftButton")
-TOM_OutfitContainer:SetScript("OnShow", TOM_OutfitContainer_OnShow)
-TOM_OutfitContainer:SetScript("OnDragStart", function(self, button)
+TOM.OutfitContainer = CreateFrame("Frame", nil, WardrobeFrame, "CollectionsBackgroundTemplate") -- We don't need the frame to have a global name EXCEPT if we intend to make it ESC-able
+TOM.OutfitContainer:ClearAllPoints()
+TOM.OutfitContainer:SetPoint("TOPLEFT", WardrobeFrame, "TOPRIGHT", 10, 0)
+TOM.OutfitContainer:SetSize(600, 500)
+TOM.OutfitContainer:SetFrameLevel(6)
+TOM.OutfitContainer:SetMovable(true)
+TOM.OutfitContainer:EnableMouse(true)
+TOM.OutfitContainer:RegisterForDrag("LeftButton")
+TOM.OutfitContainer:SetScript("OnShow", TOM.OutfitContainer_OnShow)
+TOM.OutfitContainer:SetScript("OnDragStart", function(self, button)
 	self:StartMoving()
 end)
-TOM_OutfitContainer:SetScript("OnDragStop", function(self, button)
+TOM.OutfitContainer:SetScript("OnDragStop", function(self, button)
 	self:StopMovingOrSizing()
 end)
-TOM_OutfitContainer:Hide()
+TOM.OutfitContainer:SetScript("OnHide", function(self) -- prevent "sticky" frame if it's hidden while dragging
+	self:StopMovingOrSizing()
+end)
+TOM.OutfitContainer:Hide()
 
-TOM_OutfitDropdownMenu = CreateFrame("Frame", "TOM_OutfitDropdownMenu", TOM_OutfitContainer, "UIDropDownMenuTemplate")
-UIDropDownMenu_Initialize(TOM_OutfitDropdownMenu, TOM_OutfitDropdownMenu_Init, "MENU")
-TOM_OutfitDropdownMenu:Hide()
+TOM.OutfitDropdownMenu = CreateFrame("Frame", nil, TOM.OutfitContainer, "UIDropDownMenuTemplate")
+UIDropDownMenu_Initialize(TOM.OutfitDropdownMenu, TOM_OutfitDropdownMenu_Init, "MENU")
+TOM.OutfitDropdownMenu:Hide()

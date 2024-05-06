@@ -1,5 +1,7 @@
+local addonName, TOM = ...
+
 local function renameOutfit(newName)
-	for _, outfit in pairs(MyOutfits) do
+	for _, outfit in pairs(TransmogOutfitManagerDB) do
 		if outfit.name == TOM.activeModelFrame.OutfitName:GetText() then
 			TOM.activeModelFrame.OutfitName:SetText(newName)
 			outfit.name = newName
@@ -8,19 +10,19 @@ local function renameOutfit(newName)
 end
 
 local function deleteOutfit()
-	for i, outfit in ipairs(MyOutfits) do
-		if MyOutfits[i].name == TOM.activeModelFrame.OutfitName:GetText() then
-			table.remove(MyOutfits, i)
-			TOM_OutfitContainer_OnShow()
+	for i, outfit in ipairs(TransmogOutfitManagerDB) do
+		if TransmogOutfitManagerDB[i].name == TOM.activeModelFrame.OutfitName:GetText() then
+			table.remove(TransmogOutfitManagerDB, i)
+			TOM.OutfitContainer_OnShow()
 		end
 	end
 end
 
 local function overwriteOutfit(self, outfitName, slotData)
-	for _, outfit in pairs(MyOutfits) do
+	for _, outfit in pairs(TransmogOutfitManagerDB) do
 		if outfit.name == outfitName then
 			outfit.data = slotData
-			TOM_OutfitContainer_OnShow()
+			TOM.OutfitContainer_OnShow()
 		end
 	end
 end
@@ -35,7 +37,7 @@ StaticPopupDialogs["TOM_RenameOutfit"] = {
 		self.button1:Disable()
 	end,
 	EditBoxOnTextChanged = function(self, data)
-		if TOM_IsValidName(self:GetText()) then
+		if TOM.IsValidName(self:GetText()) then
 			self:GetParent().button1:Enable()
 		end
 	end,
