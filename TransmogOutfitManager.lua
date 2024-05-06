@@ -11,7 +11,6 @@ local function deleteOutfit()
 	for i, outfit in ipairs(MyOutfits) do
 		if MyOutfits[i].name == TOM.activeModelFrame.OutfitName:GetText() then
 			table.remove(MyOutfits, i)
-			TOM.activeModelFrame:Hide()
 			TOM_OutfitContainer_OnShow()
 		end
 	end

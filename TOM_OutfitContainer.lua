@@ -1,4 +1,4 @@
-function TOM_OutfitContainer_OnShow()
+function TOM_OutfitContainer_OnShow(self)
 	TOM_SetPageText()
 	TOM_SetPageButtons()
 	if TOM_GetCurrentPage() > TOM_NumPages() then TOM_PreviousPageButton:Click("LeftButton") end
@@ -24,7 +24,7 @@ function TOM_OutfitContainer_OnShow()
 	end
 end
 
-function TOM_Outfit_OnMouseDown(self, button)
+function TOM_PreviewModel_OnMouseDown(self, button)
 	if button == "LeftButton" then
 		local outfitName = GetMouseFocus().OutfitName:GetText()
 		if not outfitName then return end
