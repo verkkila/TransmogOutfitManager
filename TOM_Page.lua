@@ -2,7 +2,7 @@ local currentPage = 1
 --local numPages = math.ceil(TOM_NumSavedOutfits() / 8)
 
 function TOM_SetPageText()
-	TOM_OutfitContainer.PageText:SetText(string.format("Page %d / %d", currentPage, math.ceil(TOM_NumSavedOutfits() / 8)))
+	TOM_OutfitContainer.PageText:SetText(string.format("Page %d / %d", currentPage, TOM_NumPages()))
 end
 
 function TOM_GetCurrentPage()
@@ -10,7 +10,7 @@ function TOM_GetCurrentPage()
 end
 
 function TOM_NumPages()
-	return math.ceil(TOM_NumSavedOutfits() / 8)
+	return math.max(1, math.ceil(TOM_NumSavedOutfits() / 8))
 end
 
 function TOM_SetPageButtons()
