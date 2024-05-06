@@ -20,10 +20,10 @@ TOM.SLOTID_TO_NAME = {
 MyOutfits = {}
 
 function TOM_GetTransmogId(slot)
-	if slot.hasUndo then return slot.base
-	elseif slot.pending ~= 0 then return slot.pending
-	elseif slot.applied ~= 0 then return slot.applied
-	else return slot.base end
+	if slot.hasUndo then return tonumber(slot.base)
+	elseif slot.pending > 0 then return tonumber(slot.pending)
+	elseif slot.applied > 0 then return tonumber(slot.applied)
+	else return tonumber(slot.base) end
 end
 
 function TOM_IsValidName(name)

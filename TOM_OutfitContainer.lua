@@ -10,34 +10,18 @@ function TOM_OutfitContainer_OnShow()
 				TOM_GetPreviewModelFrame(row, column).OutfitName:SetText(outfit.name)
 				TOM_GetPreviewModelFrame(row, column).OutfitName:Show()
 				TOM_GetPreviewModelFrame(row, column):Undress()
+				for invSlotName, invSlotData in pairs(outfit.data) do
+					local transmogId = TOM_GetTransmogId(invSlotData)
+					if transmogId > 0 then
+						TOM_GetPreviewModelFrame(row, column):TryOn(transmogId)
+					end
+				end
 			else
 				TOM_GetPreviewModelFrame(row, column):Hide()
 			end
 		end
 	end
 end
-
---[[
-function TOM_OutfitContainer_OnShow()
-	local nextFrame = 1
-	for i = 1, 8 do TOM_GetPreviewModelFrame(i):Hide() end
-	for _, outfit in pairs(MyOutfits) do
-		TOM_GetPreviewModelFrame(nextFrame):Show()
-		TOM_GetPreviewModelFrame(nextFrame).OutfitName:SetText(outfit.name)
-		TOM_GetPreviewModelFrame(nextFrame).OutfitName:Show()
-		TOM_GetPreviewModelFrame(nextFrame):Undress()
-		for invSlotName, invSlotData in pairs(outfit.data) do
-			local transmogId = TOM_GetTransmogId(invSlotData)
-			if transmogId > 0 then
-				TOM_GetPreviewModelFrame(nextFrame):TryOn(tonumber(transmogId))
-			end
-		end
-		nextFrame = nextFrame + 1
-		if nextFrame > 8 then nextFrame = 1 end
-	end
-	TOM_SetPageText()
-end
-]]--
 
 function TOM_Outfit_OnMouseDown(self, button)
 	if button == "LeftButton" then
