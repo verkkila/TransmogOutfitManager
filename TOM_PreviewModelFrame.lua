@@ -27,7 +27,7 @@ local backdrop = {
 }
 TOM.PreviewModel_R1C1 = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
 TOM.PreviewModel_R1C1:SetSize(125, 175)
-TOM.PreviewModel_R1C1:SetBackdrop()
+TOM.PreviewModel_R1C1:SetBackdrop(backdrop)
 TOM.PreviewModel_R1C1:SetBackdropColor(0, 0, 0, 1)
 TOM.PreviewModel_R1C1:Show()
 TOM.PreviewModel_R1C1:SetPoint("CENTER", TOM.OutfitContainer, "CENTER", -200, 125)
