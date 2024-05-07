@@ -22,10 +22,10 @@ backdrops["selected"] = {
 	tileSize=16,
 	edgeSize=16,
 	insets={
-		left=2,
-		right=2,
-		top=2,
-		bottom=2}
+		left=1,
+		right=1,
+		top=1,
+		bottom=1}
 }
 backdrops["applied"] = {
 	bgFile="Interface/Tooltips/UI-Tooltip-Background",
