@@ -9,5 +9,7 @@ Sets are stored on a per-character basis in the WTF folder, specifically under `
 
 Inspired by [Transmog Outfits](https://www.curseforge.com/wow/addons/transmog-outfits)
 
-### Limitations / To-Do
-- UI has room for QoL improvements
+### Future versions
+
+- Favorite, sort and filter outfits
+- Share outfits between characters when applicable
