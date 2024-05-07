@@ -69,5 +69,26 @@ function TOM.IsOutfitApplied(outfit)
 		if outfit.data[slotName].hasUndo then return false end
 		if equippedIdForSlot ~= outfitIdForSlot then return false end
 	end
+	TOM.appliedOutfitName = outfit.name
 	return true
+end
+
+function TOM.IsOutfitSelected(outfit)
+	for slotId, slotName in pairs(TOM.SLOTID_TO_NAME) do
+		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
+		local equippedIdForSlot = TOM.GetTransmogId({applied=appliedSourceID, pending=pendingSourceID, base=baseSourceID, hasUndo=hasUndo})
+		local outfitIdForSlot = TOM.GetTransmogId(outfit.data[slotName])
+		if equippedIdForSlot ~= outfitIdForSlot then return false end
+	end
+	TOM.selectedOutfitName = outfit.name
+	return true
+end
+
+function TOM.IsWearingOutfit(outfitName)
+	for _, outfit in pairs(TransmogOutfitManagerDB) do
+		if outfit.name == outfitName then
+			return TOM.IsOutfitSelected(outfit)
+		end
+	end
+	return false
 end

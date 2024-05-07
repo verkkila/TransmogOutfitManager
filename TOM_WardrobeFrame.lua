@@ -14,6 +14,9 @@ end
 
 local function TOM_OutfitNameInput_OnTextChanged(self, userInput)
 	TOM.SaveOutfitButton:SetEnabled(TOM.IsValidName(TOM.OutfitNameInput:GetText()))
+	if TOM.appliedOutfitName and (TOM.appliedOutfitName ~= TOM.OutfitNameInput:GetText()) then
+		TOM.SaveOutfitButton:SetEnabled(not TOM.IsWearingOutfit(TOM.appliedOutfitName))
+	end
 end
 
 local function TOM_SaveOutfitButton_OnClick(self, button, down)

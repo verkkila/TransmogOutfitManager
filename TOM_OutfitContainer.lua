@@ -8,8 +8,10 @@ function TOM.OutfitContainer_RedrawBorders()
 			if outfit then
 				if TOM.IsOutfitApplied(outfit) then
 					TOM.SetBorderByModelPosition(row, column, TOM.BORDERTYPE_APPLIED)
-				elseif TOM.selectedOutfit == outfit.name then
+					TOM.appliedOutfitName = outfit.name
+				elseif TOM.IsOutfitSelected(outfit) then
 					TOM.SetBorderByModelPosition(row, column, TOM.BORDERTYPE_SELECTED)
+					TOM.selectedOutfitName = outfit.name
 				else
 					TOM.SetBorderByModelPosition(row, column)
 				end
@@ -19,7 +21,7 @@ function TOM.OutfitContainer_RedrawBorders()
 end
 
 function TOM.OutfitContainer_OnEvent(self, event, ...)
-	if event == "TRANSMOGRIFY_SUCCESS" then
+	if event == "TRANSMOGRIFY_SUCCESS" or event == "TRANSMOGRIFY_UPDATE" then
 		TOM.OutfitContainer_RedrawBorders()
 	end
 end
@@ -36,7 +38,7 @@ function TOM.OutfitContainer_OnShow(self)
 			if outfit then
 				if TOM.IsOutfitApplied(outfit) then
 					TOM.SetBorderByModelPosition(row, column, TOM.BORDERTYPE_APPLIED)
-				elseif TOM.selectedOutfit == outfit.name then
+				elseif TOM.IsOutfitSelected(outfit) then
 					TOM.SetBorderByModelPosition(row, column, TOM.BORDERTYPE_SELECTED)
 				else
 					TOM.SetBorderByModelPosition(row, column)
@@ -65,7 +67,6 @@ function TOM.PreviewModel_OnMouseDown(self, button)
 		local outfitData = nil
 		for _, outfit in pairs(TransmogOutfitManagerDB) do
 			if outfitName == outfit.name then
-				TOM.selectedOutfit = outfit.name
 				for invSlotName, invSlotData in pairs(outfit.data) do
 					local transmogLoc = TransmogUtil.CreateTransmogLocation(invSlotName, Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
 					C_Transmog.ClearPending(transmogLoc)
@@ -112,6 +113,7 @@ TOM.OutfitContainer:SetMovable(true)
 TOM.OutfitContainer:EnableMouse(true)
 TOM.OutfitContainer:RegisterForDrag("LeftButton")
 TOM.OutfitContainer:RegisterEvent("TRANSMOGRIFY_SUCCESS")
+TOM.OutfitContainer:RegisterEvent("TRANSMOGRIFY_UPDATE")
 TOM.OutfitContainer:SetScript("OnEvent", TOM.OutfitContainer_OnEvent)
 TOM.OutfitContainer:SetScript("OnShow", TOM.OutfitContainer_OnShow)
 TOM.OutfitContainer:SetScript("OnDragStart", function(self, button)
@@ -122,9 +124,6 @@ TOM.OutfitContainer:SetScript("OnDragStop", function(self, button)
 end)
 TOM.OutfitContainer:SetScript("OnHide", function(self) -- prevent "sticky" frame if it's hidden while dragging
 	self:StopMovingOrSizing()
-end)
-WardrobeFrame:HookScript("OnHide", function()
-	TOM.selectedOutfit = nil
 end)
 TOM.OutfitContainer:Hide()
 --Context menu frame must be named, TODO: add check to make sure frame doesn't already exist
