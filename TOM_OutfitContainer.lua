@@ -1,5 +1,29 @@
 local addonName, TOM = ...
 
+function TOM.OutfitContainer_RedrawBorders()
+	for row = 1, 2 do
+		for column = 1, 4 do
+			local index = ((TOM.GetCurrentPage() - 1) * 8) + ((row - 1) * 4 + column)
+			local outfit = TransmogOutfitManagerDB[index]
+			if outfit then
+				if TOM.IsOutfitApplied(outfit) then
+					TOM.SetBorderByModelPosition(row, column, TOM.BORDERTYPE_APPLIED)
+				elseif TOM.selectedOutfit == outfit.name then
+					TOM.SetBorderByModelPosition(row, column, TOM.BORDERTYPE_SELECTED)
+				else
+					TOM.SetBorderByModelPosition(row, column)
+				end
+			end
+		end
+	end
+end
+
+function TOM.OutfitContainer_OnEvent(self, event, ...)
+	if event == "TRANSMOGRIFY_SUCCESS" then
+		TOM.OutfitContainer_RedrawBorders()
+	end
+end
+
 --TODO split this function into several smaller ones
 function TOM.OutfitContainer_OnShow(self)
 	TOM.SetPageText()
@@ -10,7 +34,9 @@ function TOM.OutfitContainer_OnShow(self)
 			local index = ((TOM.GetCurrentPage() - 1) * 8) + ((row - 1) * 4 + column) --quite the expression
 			local outfit = TransmogOutfitManagerDB[index]
 			if outfit then
-				if TOM.selectedOutfit == outfit.name then
+				if TOM.IsOutfitApplied(outfit) then
+					TOM.SetBorderByModelPosition(row, column, TOM.BORDERTYPE_APPLIED)
+				elseif TOM.selectedOutfit == outfit.name then
 					TOM.SetBorderByModelPosition(row, column, TOM.BORDERTYPE_SELECTED)
 				else
 					TOM.SetBorderByModelPosition(row, column)
@@ -85,6 +111,8 @@ TOM.OutfitContainer:SetFrameLevel(6)
 TOM.OutfitContainer:SetMovable(true)
 TOM.OutfitContainer:EnableMouse(true)
 TOM.OutfitContainer:RegisterForDrag("LeftButton")
+TOM.OutfitContainer:RegisterEvent("TRANSMOGRIFY_SUCCESS")
+TOM.OutfitContainer:SetScript("OnEvent", TOM.OutfitContainer_OnEvent)
 TOM.OutfitContainer:SetScript("OnShow", TOM.OutfitContainer_OnShow)
 TOM.OutfitContainer:SetScript("OnDragStart", function(self, button)
 	self:StartMoving()

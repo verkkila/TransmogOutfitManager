@@ -2,32 +2,8 @@ local addonName, TOM = ...
 -- TODO refactor this module
 
 TOM.previewModelFrames = {}
-
-function TOM.GetPreviewModelFrame(row, column)
-	if row < 1 or row > 2 then return nil end
-	if column < 1 or column > 4 then return nil end
-	return TOM.previewModelFrames[(row-1)*4+column]
-end
-
-function TOM.SetBorderByModelPosition(row, column, borderType)
-	local borderFile = "Interface\\Addons\\TransmogOutfitManager\\assets\\border-default.blp"
-	if borderType == TOM.BORDERTYPE_APPLIED then borderFile = "Interface\\Addons\\TransmogOutfitManager\\assets\\border-applied.blp" end
-	if borderType == TOM.BORDERTYPE_SELECTED then borderFile = "Interface\\Addons\\TransmogOutfitManager\\assets\\border-selected.blp" end
-	TOM.previewModelFrames[(row-1)*4+column]:SetBackdrop({bgFile="Interface/Tooltips/UI-Tooltip-Background",
-															edgeFile=borderFile,
-															tile=true,
-															tileSize=16,
-															edgeSize=16,
-															insets={
-																left=1,
-																right=1,
-																top=1,
-																bottom=1}}
-	)
-	TOM.previewModelFrames[(row-1)*4+column]:SetBackdropColor(0, 0, 0, 1)
-end
-
-local backdrop = {
+local backdrops = {}
+backdrops["default"] = {
 	bgFile="Interface/Tooltips/UI-Tooltip-Background",
 	edgeFile="Interface\\Addons\\TransmogOutfitManager\\assets\\border-default.blp",
 	tile=true,
@@ -39,12 +15,51 @@ local backdrop = {
 		top=1,
 		bottom=1}
 }
+backdrops["selected"] = {
+	bgFile="Interface/Tooltips/UI-Tooltip-Background",
+	edgeFile="Interface\\Addons\\TransmogOutfitManager\\assets\\border-selected.blp",
+	tile=true,
+	tileSize=16,
+	edgeSize=16,
+	insets={
+		left=2,
+		right=2,
+		top=2,
+		bottom=2}
+}
+backdrops["applied"] = {
+	bgFile="Interface/Tooltips/UI-Tooltip-Background",
+	edgeFile="Interface\\Addons\\TransmogOutfitManager\\assets\\border-applied.blp",
+	tile=true,
+	tileSize=16,
+	edgeSize=16,
+	insets={
+		left=1,
+		right=1,
+		top=1,
+		bottom=1}
+}
+
+function TOM.GetPreviewModelFrame(row, column)
+	if row < 1 or row > 2 then return nil end
+	if column < 1 or column > 4 then return nil end
+	return TOM.previewModelFrames[(row-1)*4+column]
+end
+
+function TOM.SetBorderByModelPosition(row, column, borderType)
+	local backdrop = backdrops.default
+	if borderType == TOM.BORDERTYPE_APPLIED then backdrop = backdrops.applied end
+	if borderType == TOM.BORDERTYPE_SELECTED then backdrop = backdrops.selected end
+	TOM.previewModelFrames[(row-1)*4+column]:SetBackdrop(backdrop)
+	TOM.previewModelFrames[(row-1)*4+column]:SetBackdropColor(0, 0, 0, 1)
+end
+
 ------------------
 --ROW 1 COLUMN 1--
 ------------------
 TOM.PreviewModel_R1C1 = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
 TOM.PreviewModel_R1C1:SetSize(125, 175)
-TOM.PreviewModel_R1C1:SetBackdrop(backdrop)
+TOM.PreviewModel_R1C1:SetBackdrop(backdrops.default)
 TOM.PreviewModel_R1C1:SetBackdropColor(0, 0, 0, 1)
 TOM.PreviewModel_R1C1:Show()
 TOM.PreviewModel_R1C1:SetPoint("CENTER", TOM.OutfitContainer, "CENTER", -200, 125)
@@ -63,7 +78,7 @@ TOM.previewModelFrames[1] = TOM.PreviewModel_R1C1
 ------------------
 TOM.PreviewModel_R1C2 = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
 TOM.PreviewModel_R1C2:SetSize(125, 175)
-TOM.PreviewModel_R1C2:SetBackdrop(backdrop)
+TOM.PreviewModel_R1C2:SetBackdrop(backdrops.default)
 TOM.PreviewModel_R1C2:SetBackdropColor(0, 0, 0, 1)
 TOM.PreviewModel_R1C2:Show()
 TOM.PreviewModel_R1C2:SetPoint("CENTER", TOM.OutfitContainer, "CENTER", -65, 125)
@@ -82,7 +97,7 @@ TOM.previewModelFrames[2] = TOM.PreviewModel_R1C2
 ------------------
 TOM.PreviewModel_R1C3 = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
 TOM.PreviewModel_R1C3:SetSize(125, 175)
-TOM.PreviewModel_R1C3:SetBackdrop(backdrop)
+TOM.PreviewModel_R1C3:SetBackdrop(backdrops.default)
 TOM.PreviewModel_R1C3:SetBackdropColor(0, 0, 0, 1)
 TOM.PreviewModel_R1C3:Show()
 TOM.PreviewModel_R1C3:SetPoint("CENTER", TOM.OutfitContainer, "CENTER", 65, 125)
@@ -101,7 +116,7 @@ TOM.previewModelFrames[3] = TOM.PreviewModel_R1C3
 ------------------
 TOM.PreviewModel_R1C4 = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
 TOM.PreviewModel_R1C4:SetSize(125, 175)
-TOM.PreviewModel_R1C4:SetBackdrop(backdrop)
+TOM.PreviewModel_R1C4:SetBackdrop(backdrops.default)
 TOM.PreviewModel_R1C4:SetBackdropColor(0, 0, 0, 1)
 TOM.PreviewModel_R1C4:Show()
 TOM.PreviewModel_R1C4:SetPoint("CENTER", TOM.OutfitContainer, "CENTER", 200, 125)
@@ -120,7 +135,7 @@ TOM.previewModelFrames[4] = TOM.PreviewModel_R1C4
 ------------------
 TOM.PreviewModel_R2C1 = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
 TOM.PreviewModel_R2C1:SetSize(125, 175)
-TOM.PreviewModel_R2C1:SetBackdrop(backdrop)
+TOM.PreviewModel_R2C1:SetBackdrop(backdrops.default)
 TOM.PreviewModel_R2C1:SetBackdropColor(0, 0, 0, 1)
 TOM.PreviewModel_R2C1:Show()
 TOM.PreviewModel_R2C1:SetPoint("CENTER", TOM.OutfitContainer, "CENTER", -200, -75)
@@ -139,7 +154,7 @@ TOM.previewModelFrames[5] = TOM.PreviewModel_R2C1
 ------------------
 TOM.PreviewModel_R2C2 = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
 TOM.PreviewModel_R2C2:SetSize(125, 175)
-TOM.PreviewModel_R2C2:SetBackdrop(backdrop)
+TOM.PreviewModel_R2C2:SetBackdrop(backdrops.default)
 TOM.PreviewModel_R2C2:SetBackdropColor(0, 0, 0, 1)
 TOM.PreviewModel_R2C2:Show()
 TOM.PreviewModel_R2C2:SetPoint("CENTER", TOM.OutfitContainer, "CENTER", -65, -75)
@@ -158,7 +173,7 @@ TOM.previewModelFrames[6] = TOM.PreviewModel_R2C2
 ------------------
 TOM.PreviewModel_R2C3 = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
 TOM.PreviewModel_R2C3:SetSize(125, 175)
-TOM.PreviewModel_R2C3:SetBackdrop(backdrop)
+TOM.PreviewModel_R2C3:SetBackdrop(backdrops.default)
 TOM.PreviewModel_R2C3:SetBackdropColor(0, 0, 0, 1)
 TOM.PreviewModel_R2C3:Show()
 TOM.PreviewModel_R2C3:SetPoint("CENTER", TOM.OutfitContainer, "CENTER", 65, -75)
@@ -177,7 +192,7 @@ TOM.previewModelFrames[7] = TOM.PreviewModel_R2C3
 ------------------
 TOM.PreviewModel_R2C4 = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
 TOM.PreviewModel_R2C4:SetSize(125, 175)
-TOM.PreviewModel_R2C4:SetBackdrop(backdrop)
+TOM.PreviewModel_R2C4:SetBackdrop(backdrops.default)
 TOM.PreviewModel_R2C4:SetBackdropColor(0, 0, 0, 1)
 TOM.PreviewModel_R2C4:Show()
 TOM.PreviewModel_R2C4:SetPoint("CENTER", TOM.OutfitContainer, "CENTER", 200, -75)

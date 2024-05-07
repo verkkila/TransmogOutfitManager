@@ -29,6 +29,13 @@ function TOM.GetTransmogId(slot)
 	else return tonumber(slot.base) end
 end
 
+--TODO rename
+local function GetEffectiveSlotId(slot)
+	if slot.pending > 0 then return tonumber(slot.pending)
+	elseif slot.applied > 0 then return tonumber(slot.applied)
+	else return tonumber(slot.base) end
+end
+
 function TOM.IsValidName(name)
 	local nameLength = string.len(name)
 	if nameLength == 0 or nameLength > 15 then
@@ -51,4 +58,16 @@ function TOM.OutfitExistsByName(name)
 		if outfit.name == name then return true end
 	end
 	return false
+end
+
+--TODO: fix unmaintainable logic
+function TOM.IsOutfitApplied(outfit)
+	for slotId, slotName in pairs(TOM.SLOTID_TO_NAME) do
+		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
+		local equippedIdForSlot = GetEffectiveSlotId({applied=appliedSourceID, pending=0, base=baseSourceID, hasUndo=hasUndo})
+		local outfitIdForSlot = GetEffectiveSlotId(outfit.data[slotName])
+		if outfit.data[slotName].hasUndo then return false end
+		if equippedIdForSlot ~= outfitIdForSlot then return false end
+	end
+	return true
 end
