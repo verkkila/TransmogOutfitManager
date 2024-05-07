@@ -38,7 +38,7 @@ StaticPopupDialogs["TOM_RenameOutfit"] = {
 	end,
 	EditBoxOnTextChanged = function(self, data)
 		if TOM.IsValidName(self:GetText()) then
-			self:GetParent().button1:Enable()
+			self:GetParent().button1:SetEnabled(not TOM.OutfitExistsByName(self:GetText()))
 		end
 	end,
 	OnAccept = function(self, data, data2)
