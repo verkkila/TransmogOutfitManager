@@ -1,7 +1,6 @@
 local addonName, TOM = ...
 
 local currentPage = 1
---local numPages = math.ceil(TOM.NumSavedOutfits() / 8)
 
 function TOM.SetPageText()
 	TOM.OutfitContainer.PageText:SetText(string.format("Page %d / %d", currentPage, TOM.NumPages()))

@@ -8,10 +8,8 @@ function TOM.OutfitContainer_RedrawBorders()
 			if outfit then
 				if TOM.IsOutfitApplied(outfit) then
 					TOM.SetBorderByModelPosition(row, column, TOM.BORDERTYPE_APPLIED)
-					TOM.appliedOutfitName = outfit.name
 				elseif TOM.IsOutfitSelected(outfit) then
 					TOM.SetBorderByModelPosition(row, column, TOM.BORDERTYPE_SELECTED)
-					TOM.selectedOutfitName = outfit.name
 				else
 					TOM.SetBorderByModelPosition(row, column)
 				end
@@ -21,8 +19,11 @@ function TOM.OutfitContainer_RedrawBorders()
 end
 
 function TOM.OutfitContainer_OnEvent(self, event, ...)
-	if event == "TRANSMOGRIFY_SUCCESS" or event == "TRANSMOGRIFY_UPDATE" then
+	if event == "TRANSMOGRIFY_SUCCESS" then
 		TOM.OutfitContainer_RedrawBorders()
+	elseif event == "TRANSMOGRIFY_UPDATE" then
+		TOM.OutfitContainer_RedrawBorders()
+		TOM.SetSaveButtonStatus()
 	end
 end
 

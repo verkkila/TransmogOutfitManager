@@ -8,14 +8,17 @@ local function TOM_OutfitsButton_OnClick(self, button, down)
 	end
 end
 
-local function TOM_OutfitNameInput_OnEscapePressed(self)
-	self:ClearFocus()
+local function TOM_OutfitNameInput_OnTextChanged(self, userInput)
+	TOM.SetSaveButtonStatus()
 end
 
-local function TOM_OutfitNameInput_OnTextChanged(self, userInput)
-	TOM.SaveOutfitButton:SetEnabled(TOM.IsValidName(TOM.OutfitNameInput:GetText()))
+function TOM.SetSaveButtonStatus()
+	local validName = TOM.IsValidName(TOM.OutfitNameInput:GetText())
 	if TOM.appliedOutfitName and (TOM.appliedOutfitName ~= TOM.OutfitNameInput:GetText()) then
-		TOM.SaveOutfitButton:SetEnabled(not TOM.IsWearingOutfit(TOM.appliedOutfitName))
+		local isOutfitDifferent = not TOM.IsWearingOutfit(TOM.appliedOutfitName)
+		TOM.SaveOutfitButton:SetEnabled(validName and isOutfitDifferent)
+	else
+		TOM.SaveOutfitButton:SetEnabled(validName)
 	end
 end
 
