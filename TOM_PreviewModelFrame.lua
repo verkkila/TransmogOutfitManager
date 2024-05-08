@@ -2,6 +2,13 @@ local addonName, TOM = ...
 -- TODO refactor this module
 
 TOM.previewModelFrames = {}
+local ROWS = 2
+local COLS = 4
+local MODEL_WIDTH = 125
+local MODEL_HEIGHT = 175
+local SPACING = 10
+local OFFSET_X = 0
+local OFFSET_Y = 15
 local backdrops = {}
 backdrops["default"] = {
 	bgFile="Interface/Tooltips/UI-Tooltip-Background",
@@ -50,158 +57,36 @@ function TOM.SetBorderByModelPosition(row, column, borderType)
 	local backdrop = backdrops.default
 	if borderType == TOM.BORDERTYPE_APPLIED then backdrop = backdrops.applied end
 	if borderType == TOM.BORDERTYPE_SELECTED then backdrop = backdrops.selected end
+	local modelFrame = TOM.previewModelFrames[(row - 1) * COLS + column]
 	TOM.previewModelFrames[(row-1)*4+column]:SetBackdrop(backdrop)
 	TOM.previewModelFrames[(row-1)*4+column]:SetBackdropColor(0, 0, 0, 1)
 end
 
-------------------
---ROW 1 COLUMN 1--
-------------------
-TOM.PreviewModel_R1C1 = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
-TOM.PreviewModel_R1C1:SetSize(125, 175)
-TOM.PreviewModel_R1C1:SetBackdrop(backdrops.default)
-TOM.PreviewModel_R1C1:SetBackdropColor(0, 0, 0, 1)
-TOM.PreviewModel_R1C1:Show()
-TOM.PreviewModel_R1C1:SetPoint("CENTER", TOM.OutfitContainer, "CENTER", -200, 125)
-TOM.PreviewModel_R1C1:EnableMouse(true)
-TOM.PreviewModel_R1C1:SetScript("OnMouseDown", TOM.PreviewModel_OnMouseDown)
-TOM.PreviewModel_R1C1:SetUnit("player")
-TOM.PreviewModel_R1C1.OutfitName = TOM.PreviewModel_R1C1:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-TOM.PreviewModel_R1C1.OutfitName:ClearAllPoints()
-TOM.PreviewModel_R1C1.OutfitName:SetPoint("BOTTOM", TOM.PreviewModel_R1C1, "BOTTOM", 0, 10)
-TOM.PreviewModel_R1C1.OutfitName:Hide()
-TOM.PreviewModel_R1C1:Hide()
-TOM.previewModelFrames[1] = TOM.PreviewModel_R1C1
+local function TOM_AddOutfitNameText(modelFrame)
+	modelFrame.OutfitName = modelFrame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
+	modelFrame.OutfitName:ClearAllPoints()
+	modelFrame.OutfitName:SetPoint("BOTTOM", modelFrame, "BOTTOM", 0, 10)
+	modelFrame.OutfitName:Hide()
+end
 
-------------------
---ROW 1 COLUMN 2--
-------------------
-TOM.PreviewModel_R1C2 = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
-TOM.PreviewModel_R1C2:SetSize(125, 175)
-TOM.PreviewModel_R1C2:SetBackdrop(backdrops.default)
-TOM.PreviewModel_R1C2:SetBackdropColor(0, 0, 0, 1)
-TOM.PreviewModel_R1C2:Show()
-TOM.PreviewModel_R1C2:SetPoint("CENTER", TOM.OutfitContainer, "CENTER", -65, 125)
-TOM.PreviewModel_R1C2:EnableMouse(true)
-TOM.PreviewModel_R1C2:SetScript("OnMouseDown", TOM.PreviewModel_OnMouseDown)
-TOM.PreviewModel_R1C2:SetUnit("player")
-TOM.PreviewModel_R1C2.OutfitName = TOM.PreviewModel_R1C2:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-TOM.PreviewModel_R1C2.OutfitName:ClearAllPoints()
-TOM.PreviewModel_R1C2.OutfitName:SetPoint("BOTTOM", TOM.PreviewModel_R1C2, "BOTTOM", 0, 10)
-TOM.PreviewModel_R1C2.OutfitName:Hide()
-TOM.PreviewModel_R1C2:Hide()
-TOM.previewModelFrames[2] = TOM.PreviewModel_R1C2
+local function TOM_SetupModel(modelFrame, row, col)
+	modelFrame:SetSize(MODEL_WIDTH, MODEL_HEIGHT)
+	modelFrame:SetBackdrop(backdrops.default)
+	modelFrame:SetPoint("CENTER", TOM.OutfitContainer, "CENTER", (col - 3) * (SPACING + MODEL_WIDTH) + ((SPACING + MODEL_WIDTH) * 0.5) + OFFSET_X, -- TODO: clean these up
+														   (-1 * (row - 1) * (SPACING + MODEL_HEIGHT)) + ((SPACING + MODEL_HEIGHT) * 0.5) + OFFSET_Y
+	)
+	modelFrame:EnableMouse(true)
+	modelFrame:SetScript("OnMouseDown", TOM.PreviewModel_OnMouseDown)
+	modelFrame:SetUnit("player")
+	TOM_AddOutfitNameText(modelFrame)
+	modelFrame:Hide()
+end
 
-------------------
---ROW 1 COLUMN 3--
-------------------
-TOM.PreviewModel_R1C3 = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
-TOM.PreviewModel_R1C3:SetSize(125, 175)
-TOM.PreviewModel_R1C3:SetBackdrop(backdrops.default)
-TOM.PreviewModel_R1C3:SetBackdropColor(0, 0, 0, 1)
-TOM.PreviewModel_R1C3:Show()
-TOM.PreviewModel_R1C3:SetPoint("CENTER", TOM.OutfitContainer, "CENTER", 65, 125)
-TOM.PreviewModel_R1C3:EnableMouse(true)
-TOM.PreviewModel_R1C3:SetScript("OnMouseDown", TOM.PreviewModel_OnMouseDown)
-TOM.PreviewModel_R1C3:SetUnit("player")
-TOM.PreviewModel_R1C3.OutfitName = TOM.PreviewModel_R1C3:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-TOM.PreviewModel_R1C3.OutfitName:ClearAllPoints()
-TOM.PreviewModel_R1C3.OutfitName:SetPoint("BOTTOM", TOM.PreviewModel_R1C3, "BOTTOM", 0, 10)
-TOM.PreviewModel_R1C3.OutfitName:Hide()
-TOM.PreviewModel_R1C3:Hide()
-TOM.previewModelFrames[3] = TOM.PreviewModel_R1C3
-
-------------------
---ROW 1 COLUMN 4--
-------------------
-TOM.PreviewModel_R1C4 = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
-TOM.PreviewModel_R1C4:SetSize(125, 175)
-TOM.PreviewModel_R1C4:SetBackdrop(backdrops.default)
-TOM.PreviewModel_R1C4:SetBackdropColor(0, 0, 0, 1)
-TOM.PreviewModel_R1C4:Show()
-TOM.PreviewModel_R1C4:SetPoint("CENTER", TOM.OutfitContainer, "CENTER", 200, 125)
-TOM.PreviewModel_R1C4:EnableMouse(true)
-TOM.PreviewModel_R1C4:SetScript("OnMouseDown", TOM.PreviewModel_OnMouseDown)
-TOM.PreviewModel_R1C4:SetUnit("player")
-TOM.PreviewModel_R1C4.OutfitName = TOM.PreviewModel_R1C4:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-TOM.PreviewModel_R1C4.OutfitName:ClearAllPoints()
-TOM.PreviewModel_R1C4.OutfitName:SetPoint("BOTTOM", TOM.PreviewModel_R1C4, "BOTTOM", 0, 10)
-TOM.PreviewModel_R1C4.OutfitName:Hide()
-TOM.PreviewModel_R1C4:Hide()
-TOM.previewModelFrames[4] = TOM.PreviewModel_R1C4
-
-------------------
---ROW 2 COLUMN 1--
-------------------
-TOM.PreviewModel_R2C1 = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
-TOM.PreviewModel_R2C1:SetSize(125, 175)
-TOM.PreviewModel_R2C1:SetBackdrop(backdrops.default)
-TOM.PreviewModel_R2C1:SetBackdropColor(0, 0, 0, 1)
-TOM.PreviewModel_R2C1:Show()
-TOM.PreviewModel_R2C1:SetPoint("CENTER", TOM.OutfitContainer, "CENTER", -200, -75)
-TOM.PreviewModel_R2C1:EnableMouse(true)
-TOM.PreviewModel_R2C1:SetScript("OnMouseDown", TOM.PreviewModel_OnMouseDown)
-TOM.PreviewModel_R2C1:SetUnit("player")
-TOM.PreviewModel_R2C1.OutfitName = TOM.PreviewModel_R2C1:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-TOM.PreviewModel_R2C1.OutfitName:ClearAllPoints()
-TOM.PreviewModel_R2C1.OutfitName:SetPoint("BOTTOM", TOM.PreviewModel_R2C1, "BOTTOM", 0, 10)
-TOM.PreviewModel_R2C1.OutfitName:Hide()
-TOM.PreviewModel_R2C1:Hide()
-TOM.previewModelFrames[5] = TOM.PreviewModel_R2C1
-
-------------------
---ROW 2 COLUMN 2--
-------------------
-TOM.PreviewModel_R2C2 = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
-TOM.PreviewModel_R2C2:SetSize(125, 175)
-TOM.PreviewModel_R2C2:SetBackdrop(backdrops.default)
-TOM.PreviewModel_R2C2:SetBackdropColor(0, 0, 0, 1)
-TOM.PreviewModel_R2C2:Show()
-TOM.PreviewModel_R2C2:SetPoint("CENTER", TOM.OutfitContainer, "CENTER", -65, -75)
-TOM.PreviewModel_R2C2:EnableMouse(true)
-TOM.PreviewModel_R2C2:SetScript("OnMouseDown", TOM.PreviewModel_OnMouseDown)
-TOM.PreviewModel_R2C2:SetUnit("player")
-TOM.PreviewModel_R2C2.OutfitName = TOM.PreviewModel_R2C2:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-TOM.PreviewModel_R2C2.OutfitName:ClearAllPoints()
-TOM.PreviewModel_R2C2.OutfitName:SetPoint("BOTTOM", TOM.PreviewModel_R2C2, "BOTTOM", 0, 10)
-TOM.PreviewModel_R2C2.OutfitName:Hide()
-TOM.PreviewModel_R2C2:Hide()
-TOM.previewModelFrames[6] = TOM.PreviewModel_R2C2
-
-------------------
---ROW 2 COLUMN 3--
-------------------
-TOM.PreviewModel_R2C3 = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
-TOM.PreviewModel_R2C3:SetSize(125, 175)
-TOM.PreviewModel_R2C3:SetBackdrop(backdrops.default)
-TOM.PreviewModel_R2C3:SetBackdropColor(0, 0, 0, 1)
-TOM.PreviewModel_R2C3:Show()
-TOM.PreviewModel_R2C3:SetPoint("CENTER", TOM.OutfitContainer, "CENTER", 65, -75)
-TOM.PreviewModel_R2C3:EnableMouse(true)
-TOM.PreviewModel_R2C3:SetScript("OnMouseDown", TOM.PreviewModel_OnMouseDown)
-TOM.PreviewModel_R2C3:SetUnit("player")
-TOM.PreviewModel_R2C3.OutfitName = TOM.PreviewModel_R2C3:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-TOM.PreviewModel_R2C3.OutfitName:ClearAllPoints()
-TOM.PreviewModel_R2C3.OutfitName:SetPoint("BOTTOM", TOM.PreviewModel_R2C3, "BOTTOM", 0, 10)
-TOM.PreviewModel_R2C3.OutfitName:Hide()
-TOM.PreviewModel_R2C3:Hide()
-TOM.previewModelFrames[7] = TOM.PreviewModel_R2C3
-
-------------------
---ROW 2 COLUMN 4--
-------------------
-TOM.PreviewModel_R2C4 = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
-TOM.PreviewModel_R2C4:SetSize(125, 175)
-TOM.PreviewModel_R2C4:SetBackdrop(backdrops.default)
-TOM.PreviewModel_R2C4:SetBackdropColor(0, 0, 0, 1)
-TOM.PreviewModel_R2C4:Show()
-TOM.PreviewModel_R2C4:SetPoint("CENTER", TOM.OutfitContainer, "CENTER", 200, -75)
-TOM.PreviewModel_R2C4:EnableMouse(true)
-TOM.PreviewModel_R2C4:SetScript("OnMouseDown", TOM.PreviewModel_OnMouseDown)
-TOM.PreviewModel_R2C4:SetUnit("player")
-TOM.PreviewModel_R2C4.OutfitName = TOM.PreviewModel_R2C4:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-TOM.PreviewModel_R2C4.OutfitName:ClearAllPoints()
-TOM.PreviewModel_R2C4.OutfitName:SetPoint("BOTTOM", TOM.PreviewModel_R2C4, "BOTTOM", 0, 10)
-TOM.PreviewModel_R2C4.OutfitName:Hide()
-TOM.PreviewModel_R2C4:Hide()
-TOM.previewModelFrames[8] = TOM.PreviewModel_R2C4
+for r = 1, ROWS do
+	for c = 1, COLS do
+		tinsert(TOM.previewModelFrames, CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate"))
+		--TOM.previewModelFrames[(r - 1) * COLS + c] = CreateFrame("DressUpModel", nil, TOM.OutfitContainer, "BackdropTemplate")
+		local modelFrame = TOM.previewModelFrames[(r - 1) * COLS + c]
+		TOM_SetupModel(modelFrame, r, c)
+	end
+end
