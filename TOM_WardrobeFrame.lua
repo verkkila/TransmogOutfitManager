@@ -30,7 +30,7 @@ local function TOM_SaveOutfitButton_OnClick(self, button, down)
 		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
 		slotData[slotName] = {base=baseSourceID, applied=appliedSourceID, pending=pendingSourceID, hasUndo=hasUndo}
 	end
-	if TOM.OutfitExistsByName(outfitName) then
+	if TOM.OutfitExistsByName(outfitName) > 0 then
 		StaticPopupDialogs["TOM_OverwriteOutfit"].text = "Overwrite \'" .. outfitName .. "\'?"
 		local dialog = StaticPopup_Show("TOM_OverwriteOutfit")
 		if dialog then
@@ -38,7 +38,7 @@ local function TOM_SaveOutfitButton_OnClick(self, button, down)
 			dialog.data2 = slotData
 		end
 	else
-		table.insert(TransmogOutfitManagerDB, {name=outfitName, data=slotData})
+		TOM.SaveOutfit(outfitName, slotData)
 	end
 	TOM.OutfitContainer_OnShow()
 end

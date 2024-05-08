@@ -60,7 +60,7 @@ TOM.NextPageButton = CreateFrame("Button", nil, TOM.OutfitContainer, "Collection
 TOM.NextPageButton:ClearAllPoints()
 TOM.NextPageButton:SetPoint("CENTER", TOM.OutfitContainer, "BOTTOM", 60, 40)
 TOM.NextPageButton:SetScript("OnClick", TOM_NextPageButton_OnClick)
-if TOM.NumSavedOutfits() <= 8 then TOM.NextPageButton:SetEnabled(false) end -- feels hacky
+TOM.NextPageButton:SetEnabled(false)
 
 TOM.OutfitContainer.PageText = TOM.OutfitContainer:CreateFontString(nil, "OVERLAY", "GameTooltipText")
 TOM.OutfitContainer.PageText:ClearAllPoints()

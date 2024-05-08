@@ -6,6 +6,7 @@
 ## LoadOnDemand: 1
 ## LoadWith: Blizzard_Collections
 
+TOM_OutfitDBCharacter.lua
 TOM_Util.lua
 TOM_OutfitContainer.lua
 TOM_Page.lua

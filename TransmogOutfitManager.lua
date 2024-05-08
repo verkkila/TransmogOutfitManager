@@ -1,30 +1,19 @@
 local addonName, TOM = ...
 
-local function renameOutfit(newName)
-	for _, outfit in pairs(TransmogOutfitManagerDB) do
-		if outfit.name == TOM.activeModelFrame.OutfitName:GetText() then
-			TOM.activeModelFrame.OutfitName:SetText(newName)
-			outfit.name = newName
-		end
+local function renameOutfit(self, oldName, newName)
+	if TOM.RenameOutfit(oldName, newName) then
+		TOM.activeModelFrame.OutfitName:SetText(newName)
 	end
 end
 
-local function deleteOutfit()
-	for i, outfit in ipairs(TransmogOutfitManagerDB) do
-		if TransmogOutfitManagerDB[i].name == TOM.activeModelFrame.OutfitName:GetText() then
-			table.remove(TransmogOutfitManagerDB, i)
-			TOM.OutfitContainer_OnShow()
-		end
-	end
+local function deleteOutfit(self, outfitName)
+	TOM.DeleteOutfitByName(outfitName)
+	TOM.OutfitContainer_OnShow()
 end
 
 local function overwriteOutfit(self, outfitName, slotData)
-	for _, outfit in pairs(TransmogOutfitManagerDB) do
-		if outfit.name == outfitName then
-			outfit.data = slotData
-			TOM.OutfitContainer_OnShow()
-		end
-	end
+	TOM.OverwriteOutfit(outfitName, slotData)
+	TOM.OutfitContainer_OnShow()
 end
 
 StaticPopupDialogs["TOM_RenameOutfit"] = {
@@ -38,11 +27,11 @@ StaticPopupDialogs["TOM_RenameOutfit"] = {
 	end,
 	EditBoxOnTextChanged = function(self, data)
 		if TOM.IsValidName(self:GetText()) then
-			self:GetParent().button1:SetEnabled(not TOM.OutfitExistsByName(self:GetText()))
+			self:GetParent().button1:SetEnabled(TOM.OutfitExistsByName(self:GetText()) == 0)
 		end
 	end,
 	OnAccept = function(self, data, data2)
-		renameOutfit(self.editBox:GetText())
+		renameOutfit(self, data, self.editBox:GetText())
 	end,
 	timeout = 0,
 	whileDead = false,
@@ -54,8 +43,8 @@ StaticPopupDialogs["TOM_DeleteOutfit"] = {
 	text = "---",
 	button1 = "Yes",
 	button2 = "No",
-	OnAccept = function()
-		deleteOutfit()
+	OnAccept = function(self, data)
+		deleteOutfit(self, data)
 	end,
 	timeout = 0,
 	whileDead = false,

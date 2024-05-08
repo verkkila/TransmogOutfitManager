@@ -29,14 +29,15 @@ end
 
 --TODO split this function into several smaller ones
 function TOM.OutfitContainer_OnShow(self)
+	TOM.CountOutfits()
 	TOM.SetPageText()
 	TOM.SetPageButtons()
 	if TOM.GetCurrentPage() > TOM.NumPages() then TOM.PreviousPageButton:Click("LeftButton") end
 	for row = 1, 2 do
 		for column = 1, 4 do
 			local index = ((TOM.GetCurrentPage() - 1) * 8) + ((row - 1) * 4 + column) --quite the expression
-			local outfit = TransmogOutfitManagerDB[index]
-			if outfit then
+			if TOM.OutfitExists(index) then
+				local outfit = TOM.GetOutfit(index)
 				if TOM.IsOutfitApplied(outfit) then
 					TOM.SetBorderByModelPosition(row, column, TOM.BORDERTYPE_APPLIED)
 				elseif TOM.IsOutfitSelected(outfit) then
@@ -66,7 +67,7 @@ function TOM.PreviewModel_OnMouseDown(self, button)
 		local outfitName = GetMouseFocus().OutfitName:GetText()
 		if not outfitName then return end
 		local outfitData = nil
-		for _, outfit in pairs(TransmogOutfitManagerDB) do
+		for outfit in TOM.GetAllOutfits() do
 			if outfitName == outfit.name then
 				for invSlotName, invSlotData in pairs(outfit.data) do
 					local transmogLoc = TransmogUtil.CreateTransmogLocation(invSlotName, Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
@@ -88,10 +89,17 @@ end
 
 local function onDropdownMenuItemClicked(self, arg1, arg2)
 	if arg1 == TOM.DROPDOWN_RENAME then
-		StaticPopup_Show("TOM_RenameOutfit")
+		local dialog = StaticPopup_Show("TOM_RenameOutfit")
+		if dialog then
+			dialog.data = TOM.activeModelFrame.OutfitName:GetText()
+		end
 	elseif arg1 == TOM.DROPDOWN_DELETE then
-		StaticPopupDialogs["TOM_DeleteOutfit"].text = "Delete outfit \'" .. TOM.activeModelFrame.OutfitName:GetText() .. "\'?"
-		StaticPopup_Show("TOM_DeleteOutfit")
+		local outfitName = TOM.activeModelFrame.OutfitName:GetText()
+		StaticPopupDialogs["TOM_DeleteOutfit"].text = "Delete outfit \'" .. outfitName .. "\'?"
+		local dialog = StaticPopup_Show("TOM_DeleteOutfit")
+		if dialog then
+			dialog.data = outfitName
+		end
 	end
 end
 

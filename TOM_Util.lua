@@ -20,7 +20,7 @@ TOM.SLOTID_TO_NAME = {
 		[18] = "RANGEDSLOT",
 		[19] = "TABARDSLOT"
 }
-TransmogOutfitManagerDB = TransmogOutfitManagerDB or {}
+--TransmogOutfitManagerDB = TransmogOutfitManagerDB or {}
 
 function TOM.GetTransmogId(slot)
 	if slot.hasUndo then return tonumber(slot.base)
@@ -43,21 +43,6 @@ function TOM.IsValidName(name)
 	else
 		return true
 	end
-end
-
-function TOM.NumSavedOutfits()
-	local count = 0
-	for _, outfit in pairs(TransmogOutfitManagerDB) do
-		if outfit.name then count = count + 1 end
-	end
-	return count
-end
-
-function TOM.OutfitExistsByName(name)
-	for _, outfit in pairs(TransmogOutfitManagerDB) do
-		if outfit.name == name then return true end
-	end
-	return false
 end
 
 --TODO: fix unmaintainable logic
@@ -84,11 +69,3 @@ function TOM.IsOutfitSelected(outfit)
 	return true
 end
 
-function TOM.IsWearingOutfit(outfitName)
-	for _, outfit in pairs(TransmogOutfitManagerDB) do
-		if outfit.name == outfitName then
-			return TOM.IsOutfitSelected(outfit)
-		end
-	end
-	return false
-end
