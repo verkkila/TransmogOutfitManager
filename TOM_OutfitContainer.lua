@@ -4,8 +4,8 @@ function TOM.OutfitContainer_RedrawBorders()
 	for row = 1, 2 do
 		for column = 1, 4 do
 			local index = ((TOM.GetCurrentPage() - 1) * 8) + ((row - 1) * 4 + column)
-			local outfit = TransmogOutfitManagerDB[index]
-			if outfit then
+			if TOM.OutfitExists(index) then
+				local outfit = TOM.GetOutfit(index)
 				if TOM.IsOutfitApplied(outfit) then
 					TOM.SetBorderByModelPosition(row, column, TOM.BORDERTYPE_APPLIED)
 				elseif TOM.IsOutfitSelected(outfit) then
