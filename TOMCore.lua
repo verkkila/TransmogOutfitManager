@@ -76,11 +76,32 @@ function TOM.Core.GetOutfitByName(outfitName)
 end
 
 function TOM.Core.ResetDisplay()
-
+	TOM.Core.currentView = {}
 end
 
 function TOM.Core.DisplayOutfit(outfitName, page, row, column)
 	TOM.Core.currentView[outfitName] = TOM.Display.GetModelFrame(row, column)
+end
+
+function TOM.Core.IsFavorited(outfitName)
+	if TOM.DB.GetOutfitByName(outfitName) and TOM.DB.OutfitHasMetadata(outfitName) then
+		return TOM.DB.GetOutfitMetadata(outfitName, "favorited")
+	end
+	return nil
+end
+
+function TOM.Core.ToggleFavorite(outfitName)
+	local outfit = TOM.DB.GetOutfitByName(outfitName)
+	if outfit then
+		if TOM.DB.OutfitHasMetadata(outfitName) then
+			local favorited = TOM.DB.GetOutfitMetadata(outfitName, "favorited")
+			TOM.DB.SetOutfitMetadata(outfitName, "favorited", not favorited)
+		else
+			--do this manually for now
+			TOM.DB.CreateMetadataForOutfit(outfitName)
+			TOM.DB.SetOutfitMetadata(outfitName, "favorited", true)
+		end
+	end
 end
 
 function TOM.Core.GetOutfitNameByFrame(previewModelFrame)

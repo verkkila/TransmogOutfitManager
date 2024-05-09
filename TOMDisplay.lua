@@ -87,6 +87,7 @@ function TOM.Display.RedrawBorders()
 end
 
 --TODO split this function into several smaller ones
+--fix layer violations
 function TOM.Display.Redraw(self)
 	TOM.Display.UpdatePageText()
 	TOM.Display.UpdatePageButtons()
@@ -105,18 +106,20 @@ function TOM.Display.Redraw(self)
 				else
 					TOM.Display.SetModelBorder(row, column)
 				end
-				TOM.Display.GetModelFrame(row, column):Show()
-				TOM.Display.GetModelFrame(row, column).OutfitName:SetText(outfit.name)
-				TOM.Display.GetModelFrame(row, column).OutfitName:Show()
-				TOM.Display.GetModelFrame(row, column):Undress()
+				local modelFrame = TOM.Display.GetModelFrame(row, column)
+				modelFrame:Show()
+				modelFrame.OutfitName:SetText(outfit.name)
+				modelFrame.OutfitName:Show()
+				modelFrame:Undress()
 				for invSlotName, invSlotData in pairs(outfit.data) do
 					local transmogId = TOM.Core.GetTransmogId(invSlotData)
 					if transmogId > 0 then
-						TOM.Display.GetModelFrame(row, column):TryOn(transmogId)
+						modelFrame:TryOn(transmogId)
 					end
 				end
+				modelFrame.FavIcon:SetShown(TOM.Core.IsFavorited(outfit.name))
 			else
-				TOM.Display.GetModelFrame(row, column):Hide()
+				modelFrame:Hide()
 			end
 		end
 	end
@@ -128,6 +131,7 @@ local function containerOnEvent(self, event, ...)
 		if addonName == addonname then
 			TOM.DB.Init()
 			TOM.DB.CountOutfits()
+			TOM.Input.Init()
 			TOM.Display.Container:UnregisterEvent("ADDON_LOADED")
 		end
 	elseif event == "TRANSMOGRIFY_SUCCESS" then

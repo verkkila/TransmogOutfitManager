@@ -56,6 +56,15 @@ local function addOutfitNameText(modelFrame)
 	modelFrame.OutfitName:Hide()
 end
 
+local function addFavoriteIcon(modelFrame)
+	modelFrame.FavIcon = modelFrame:CreateTexture()
+	modelFrame.FavIcon:SetPoint("TOPLEFT", -6, 6)
+	modelFrame.FavIcon:SetSize(24, 24)
+	modelFrame.FavIcon:SetTexture("Interface/Collections/Collections.blp")
+	modelFrame.FavIcon:SetTexCoord(0.1875, 0.234375, 0.015625, 0.0625)
+	modelFrame.FavIcon:Hide()
+end
+
 local function modelFrameOnMouseDown(self, button)
 	if button == "LeftButton" then
 		local outfitName = GetMouseFocus().OutfitName:GetText()
@@ -89,7 +98,8 @@ local function setupModelFrame(modelFrame, row, col)
 	modelFrame:SetScript("OnMouseDown", modelFrameOnMouseDown)
 	modelFrame:SetUnit("player")
 	addOutfitNameText(modelFrame)
-	--TOM_AddOwnerNameText(modelFrame)
+	addFavoriteIcon(modelFrame)
+	--addOwnerNameText(modelFrame)
 	modelFrame:Hide()
 end
 

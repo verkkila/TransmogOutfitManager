@@ -1,7 +1,9 @@
 local addonName, TOM = ...
 
-local DROPDOWN_RENAME = 1
-local DROPDOWN_DELETE = 2
+
+local DROPDOWN_TOGGLEFAVORITE = 1
+local DROPDOWN_RENAME = 2
+local DROPDOWN_DELETE = 3
 
 local function outfitsButtonOnClick(self, button, down)
 	if not TOM.Display.Container:IsVisible() then
@@ -58,8 +60,19 @@ local function saveOutfitButtonOnClick(self, button, down)
 	TOM.Display.Redraw()
 end
 
+--[[
+local function getFavoritedText(outfitName)
+	if TOM.Core.IsOutfitFavorited(outfitName) then return "Remove" end
+	return "Set"
+end
+]]--
+
 local function onDropdownMenuItemClicked(self, arg1, arg2)
-	if arg1 == DROPDOWN_RENAME then
+	if arg1 == DROPDOWN_TOGGLEFAVORITE then
+		local outfitName = TOM.Core.GetOutfitNameByFrame(TOM.activeModelFrame)
+		TOM.Core.ToggleFavorite(outfitName)
+		TOM.activeModelFrame.FavIcon:SetShown(TOM.Core.IsFavorited(outfitName))
+	elseif arg1 == DROPDOWN_RENAME then
 		local dialog = StaticPopup_Show("TOM_RenameOutfit")
 		if dialog then
 			--this feels a bit risky
@@ -79,10 +92,16 @@ local function initDropdownMenu(frame, level, menuList)
 	local info = UIDropDownMenu_CreateInfo()
 	info.func = onDropdownMenuItemClicked
 	info.notCheckable = true
+	info.text, info.arg1 = "Toggle favorite", DROPDOWN_TOGGLEFAVORITE
+	UIDropDownMenu_AddButton(info)
 	info.text, info.arg1 = "Rename", DROPDOWN_RENAME
 	UIDropDownMenu_AddButton(info)
 	info.text, info.arg1 = "Delete", DROPDOWN_DELETE
 	UIDropDownMenu_AddButton(info)
+end
+
+function TOM.Input.Init()
+	UIDropDownMenu_Initialize(TOM.Input.OutfitDropdown, initDropdownMenu, "MENU")
 end
 
 TOM.Input.OutfitsButton:SetScript("OnClick", outfitsButtonOnClick)
@@ -90,4 +109,3 @@ TOM.Input.OutfitNameBox:SetScript("OnTextChanged", outfitNameInputOnTextChanged)
 TOM.Input.SaveOutfitButton:SetScript("OnClick", saveOutfitButtonOnClick)
 TOM.Input.PreviousPageButton:SetScript("OnClick", previousPageButtonOnClick)
 TOM.Input.NextPageButton:SetScript("OnClick", nextPageButtonOnClick)
-UIDropDownMenu_Initialize(TOM.Input.OutfitDropdown, initDropdownMenu, "MENU")

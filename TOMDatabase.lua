@@ -42,6 +42,32 @@ function TOM.DB.GetAllOutfits()
             end
 end
 
+function TOM.DB.CreateMetadataForOutfit(outfitName)
+    local outfit = TOM.DB.GetOutfitByName(outfitName)
+    if outfit then
+        if not outfit.metadata then outfit.metadata = {} end
+    end
+end
+
+function TOM.DB.OutfitHasMetadata(outfitName)
+    local outfit = TOM.DB.GetOutfitByName(outfitName)
+    if outfit then return outfit.metadata ~= nil end
+end
+
+function TOM.DB.GetOutfitMetadata(outfitName, key)
+    local outfit = TOM.DB.GetOutfitByName(outfitName)
+    if outfit and outfit.metadata then
+        return outfit.metadata[key]
+    end
+end
+
+function TOM.DB.SetOutfitMetadata(outfitName, key, value)
+    local outfit = TOM.DB.GetOutfitByName(outfitName)
+    if outfit and outfit.metadata then
+        outfit.metadata[key] = value
+    end
+end
+
 function TOM.DB.SaveOutfit(outfitName, outfitData)
     --TODO: add metadata
     local outfit = {name = outfitName, data = outfitData}
