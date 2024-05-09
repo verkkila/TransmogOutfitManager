@@ -8,7 +8,7 @@
 
 constants.lua
 TOMDatabase.lua
-TOMSelection.lua
+TOMCore.lua
 TOMDisplay.lua
 TOMDisplayFrames.lua
 TOMInput.lua
