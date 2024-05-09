@@ -11,7 +11,7 @@ function TOM.GetCurrentPage()
 end
 
 function TOM.NumPages()
-	return math.max(1, math.ceil(TOM.DB.NumSavedOutfits() / 8))
+	return math.max(1, math.ceil(TOM.Core.GetNumOutfits() / 8))
 end
 
 function TOM.SetPageButtons()
@@ -41,7 +41,7 @@ end
 
 local function TOM_NextPageButton_OnClick(self, button, down)
 	if button ~= "LeftButton" then return end
-	if currentPage < math.ceil(TOM.DB.NumSavedOutfits() / 8) then
+	if currentPage < math.ceil(TOM.Core.GetNumOutfits() / 8) then
 		currentPage = currentPage + 1
 		TOM.PreviousPageButton:SetEnabled(true)
 	end

@@ -1,14 +1,14 @@
 local addonName, TOM = ...
 
 function TOM.OutfitContainer_RedrawBorders()
+	local page = TOM.GetCurrentPage()
 	for row = 1, 2 do
 		for column = 1, 4 do
-			local index = ((TOM.GetCurrentPage() - 1) * 8) + ((row - 1) * 4 + column)
-			if TOM.DB.OutfitExists(index) then
-				local outfit = TOM.DB.GetOutfit(index)
-				if TOM.IsOutfitApplied(outfit) then
+			if TOM.Core.OutfitExists(page, row, column) then
+				local outfit = TOM.Core.GetOutfit(page, row, column)
+				if TOM.Core.IsOutfitApplied(outfit) then
 					TOM.SetBorderByModelPosition(row, column, TOM.const.BORDERTYPE_APPLIED)
-				elseif TOM.IsOutfitSelected(outfit) then
+				elseif TOM.Core.IsOutfitSelected(outfit) then
 					TOM.SetBorderByModelPosition(row, column, TOM.const.BORDERTYPE_SELECTED)
 				else
 					TOM.SetBorderByModelPosition(row, column)
@@ -36,18 +36,19 @@ end
 
 --TODO split this function into several smaller ones
 function TOM.OutfitContainer_OnShow(self)
-	--TOM.DB.CountOutfits()
 	TOM.SetPageText()
 	TOM.SetPageButtons()
 	if TOM.GetCurrentPage() > TOM.NumPages() then TOM.PreviousPageButton:Click("LeftButton") end
+	TOM.Core.ResetDisplay()
 	for row = 1, 2 do
 		for column = 1, 4 do
-			local index = ((TOM.GetCurrentPage() - 1) * 8) + ((row - 1) * 4 + column) --quite the expression
-			if TOM.DB.OutfitExists(index) then
-				local outfit = TOM.DB.GetOutfit(index)
-				if TOM.IsOutfitApplied(outfit) then
+			if TOM.Core.OutfitExists(TOM.GetCurrentPage(), row, column) then
+				local outfit = TOM.Core.GetOutfit(TOM.GetCurrentPage(), row, column)
+				--loosely keep track of what outfit is where
+				TOM.Core.DisplayOutfit(outfit.name, page, row, column)
+				if TOM.Core.IsOutfitApplied(outfit) then
 					TOM.SetBorderByModelPosition(row, column, TOM.const.BORDERTYPE_APPLIED)
-				elseif TOM.IsOutfitSelected(outfit) then
+				elseif TOM.Core.IsOutfitSelected(outfit) then
 					TOM.SetBorderByModelPosition(row, column, TOM.const.BORDERTYPE_SELECTED)
 				else
 					TOM.SetBorderByModelPosition(row, column)
@@ -57,7 +58,7 @@ function TOM.OutfitContainer_OnShow(self)
 				TOM.GetPreviewModelFrame(row, column).OutfitName:Show()
 				TOM.GetPreviewModelFrame(row, column):Undress()
 				for invSlotName, invSlotData in pairs(outfit.data) do
-					local transmogId = TOM.GetTransmogId(invSlotData)
+					local transmogId = TOM.Core.GetTransmogId(invSlotData)
 					if transmogId > 0 then
 						TOM.GetPreviewModelFrame(row, column):TryOn(transmogId)
 					end
@@ -73,18 +74,15 @@ function TOM.PreviewModel_OnMouseDown(self, button)
 	if button == "LeftButton" then
 		local outfitName = GetMouseFocus().OutfitName:GetText()
 		if not outfitName then return end
-		local outfitData = nil
-		for outfit in TOM.DB.GetAllOutfits() do
-			if outfitName == outfit.name then
-				for invSlotName, invSlotData in pairs(outfit.data) do
-					local transmogLoc = TransmogUtil.CreateTransmogLocation(invSlotName, Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
-					C_Transmog.ClearPending(transmogLoc)
-					local _, _, _, canTransmog = C_Transmog.GetSlotInfo(transmogLoc)
-					local id = TOM.GetTransmogId(invSlotData)
-					if canTransmog and id then
-						C_Transmog.SetPending(transmogLoc, TransmogUtil.CreateTransmogPendingInfo(Enum.TransmogPendingType.Apply, id))
-					end
-				end
+		local index = TOM.Core.GetOutfitByName(outfitName)
+		if index == 0 then return end
+		for invSlotName, invSlotData in pairs(TOM.Core.GetOutfitData(index)) do
+			local transmogLoc = TransmogUtil.CreateTransmogLocation(invSlotName, Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
+			C_Transmog.ClearPending(transmogLoc)
+			local _, _, _, canTransmog = C_Transmog.GetSlotInfo(transmogLoc)
+			local id = TOM.Core.GetTransmogId(invSlotData)
+			if canTransmog and id then
+				C_Transmog.SetPending(transmogLoc, TransmogUtil.CreateTransmogPendingInfo(Enum.TransmogPendingType.Apply, id))
 			end
 		end
 		TOM.OutfitContainer_OnShow()
@@ -98,7 +96,8 @@ local function onDropdownMenuItemClicked(self, arg1, arg2)
 	if arg1 == TOM.const.DROPDOWN_RENAME then
 		local dialog = StaticPopup_Show("TOM_RenameOutfit")
 		if dialog then
-			dialog.data = TOM.activeModelFrame.OutfitName:GetText()
+			--this feels a bit risky
+			dialog.data = TOM.Core.GetOutfitNameByFrame(TOM.activeModelFrame)
 		end
 	elseif arg1 == TOM.const.DROPDOWN_DELETE then
 		local outfitName = TOM.activeModelFrame.OutfitName:GetText()

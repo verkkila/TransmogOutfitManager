@@ -1,11 +1,11 @@
 local addonName, TOM = ...
 
+--is it better to put these in their respective files?
 TOM.const = TOM.const or {}
 TOM.const.DROPDOWN_RENAME = 1
 TOM.const.DROPDOWN_DELETE = 2
 TOM.const.BORDERTYPE_APPLIED = 1
 TOM.const.BORDERTYPE_SELECTED = 2
--- TODO rename
 TOM.const.SLOTID_TO_NAME = {
 		[1] = "HEADSLOT",
 		[3] = "SHOULDERSLOT",

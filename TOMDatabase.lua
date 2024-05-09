@@ -25,6 +25,14 @@ function TOM.DB.GetOutfit(index)
     return TOM.DB._sources.charDB[index]
 end
 
+--what to return when there are multiple data sources?
+function TOM.DB.GetOutfitByName(outfitName)
+    for _, outfit in pairs(TOM.DB._sources.charDB) do
+       if outfit.name == outfitName then return outfit end
+    end
+    return nil
+end
+
 function TOM.DB.GetAllOutfits()
     local i = 0
     local max = TOM.DB.NumSavedOutfits()
@@ -44,6 +52,7 @@ function TOM.DB.SaveOutfit(outfitName, outfitData)
 end
 
 function TOM.DB.RenameOutfit(oldName, newName)
+    print(oldName, newName)
     local outfitIndex = TOM.DB.OutfitExistsByName(oldName)
     if outfitIndex > 0 then
         TOM.DB._sources.charDB[outfitIndex].name = newName
@@ -51,11 +60,14 @@ function TOM.DB.RenameOutfit(oldName, newName)
     return outfitIndex
 end
 
+--is there a use case for returning the new count?
 function TOM.DB.DeleteOutfitByName(outfitName)
     local outfitIndex = TOM.DB.OutfitExistsByName(outfitName)
     if outfitIndex > 0 and table.remove(TOM.DB._sources.charDB, outfitIndex) then
         numOutfits = max(0, numOutfits - 1)
+        return true
     end
+    return false
 end
 
 function TOM.DB.OverwriteOutfit(outfitName, newData)
@@ -64,6 +76,7 @@ function TOM.DB.OverwriteOutfit(outfitName, newData)
     if outfitIndex > 0 then
         TOM.DB._sources.charDB[outfitIndex].data = newData
     end
+    return outfitIndex
 end
 
 function TOM.DB.NumSavedOutfits()
@@ -79,16 +92,6 @@ function TOM.DB.OutfitExistsByName(name)
 		if outfit.name == name then return index end
 	end
 	return 0
-end
-
---is checking by name necessary here?
-function TOM.DB.IsWearingOutfit(outfitName)
-	for _, outfit in pairs(TOM.DB._sources.charDB) do
-		if outfit.name == outfitName then
-			return TOM.IsOutfitSelected(outfit)
-		end
-	end
-	return false
 end
 
 function TOM.DB.CountOutfits()
