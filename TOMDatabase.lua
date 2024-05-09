@@ -52,7 +52,6 @@ function TOM.DB.SaveOutfit(outfitName, outfitData)
 end
 
 function TOM.DB.RenameOutfit(oldName, newName)
-    print(oldName, newName)
     local outfitIndex = TOM.DB.OutfitExistsByName(oldName)
     if outfitIndex > 0 then
         TOM.DB._sources.charDB[outfitIndex].name = newName
