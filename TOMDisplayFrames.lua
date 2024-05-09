@@ -3,6 +3,8 @@ local addonName, TOM = ...
 TOM.Display = TOM.Display or {}
 TOM.Display.ModelFrames = {}
 TOM.Display.Backdrops = {}
+TOM.Display.ROWS = 2
+TOM.Display.COLS = 4
 --this is not ideal
 TOM.Display.Backdrops["default"] = {
 	bgFile="Interface/Tooltips/UI-Tooltip-Background",
@@ -41,6 +43,12 @@ TOM.Display.Backdrops["applied"] = {
 		bottom=1}
 }
 
+local MODEL_WIDTH = 125
+local MODEL_HEIGHT = 175
+local SPACING = 10
+local OFFSET_X = 0
+local OFFSET_Y = 15
+
 local function addOutfitNameText(modelFrame)
 	modelFrame.OutfitName = modelFrame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
 	modelFrame.OutfitName:ClearAllPoints()
@@ -71,11 +79,11 @@ local function modelFrameOnMouseDown(self, button)
 end
 
 local function setupModelFrame(modelFrame, row, col)
-	modelFrame:SetSize(TOM.const.MODEL_WIDTH, TOM.const.MODEL_HEIGHT)
+	modelFrame:SetSize(MODEL_WIDTH, MODEL_HEIGHT)
 	modelFrame:SetBackdrop(TOM.Display.Backdrops.default)
 	--TODO: clean up position calculations
-	modelFrame:SetPoint("CENTER", TOM.Display.Container, "CENTER", (col - 3) * (TOM.const.SPACING + TOM.const.MODEL_WIDTH) + ((TOM.const.SPACING + TOM.const.MODEL_WIDTH) * 0.5) + TOM.const.OFFSET_X,
-														   (-1 * (row - 1) * (TOM.const.SPACING + TOM.const.MODEL_HEIGHT)) + ((TOM.const.SPACING + TOM.const.MODEL_HEIGHT) * 0.5) + TOM.const.OFFSET_Y
+	modelFrame:SetPoint("CENTER", TOM.Display.Container, "CENTER", (col - 3) * (SPACING + MODEL_WIDTH) + ((SPACING + MODEL_WIDTH) * 0.5) + OFFSET_X,
+														   (-1 * (row - 1) * (SPACING + MODEL_HEIGHT)) + ((SPACING + MODEL_HEIGHT) * 0.5) + OFFSET_Y
 	)
 	modelFrame:EnableMouse(true)
 	modelFrame:SetScript("OnMouseDown", modelFrameOnMouseDown)
@@ -100,10 +108,10 @@ TOM.Display.Container.PageText = TOM.Display.Container:CreateFontString(nil, "OV
 TOM.Display.Container.PageText:ClearAllPoints()
 TOM.Display.Container.PageText:SetPoint("CENTER", TOM.Display.Container, "BOTTOM", -40, 40)
 
-for r = 1, TOM.const.ROWS do
-	for c = 1, TOM.const.COLS do
+for r = 1, TOM.Display.ROWS do
+	for c = 1, TOM.Display.COLS do
 		tinsert(TOM.Display.ModelFrames, CreateFrame("DressUpModel", nil, TOM.Display.Container, "BackdropTemplate"))
-		local modelFrame = TOM.Display.ModelFrames[(r - 1) * TOM.const.COLS + c]
+		local modelFrame = TOM.Display.ModelFrames[(r - 1) * TOM.Display.COLS + c]
 		setupModelFrame(modelFrame, r, c)
 	end
 end

@@ -1,9 +1,11 @@
 local addonName, TOM = ...
 
 local currentPage = 1
+local BORDERTYPE_APPLIED = 1
+local BORDERTYPE_SELECTED = 2
 
 local function rctoindex(row, column)
-	return (row - 1) * TOM.const.COLS + column
+	return (row - 1) * TOM.Display.COLS + column
 end
 
 function TOM.Display.UpdateSaveButton()
@@ -59,8 +61,8 @@ end
 
 function TOM.Display.SetModelBorder(row, column, borderType)
 	local backdrop = TOM.Display.Backdrops.default
-	if borderType == TOM.const.BORDERTYPE_APPLIED then backdrop = TOM.Display.Backdrops.applied end
-	if borderType == TOM.const.BORDERTYPE_SELECTED then backdrop = TOM.Display.Backdrops.selected end
+	if borderType == BORDERTYPE_APPLIED then backdrop = TOM.Display.Backdrops.applied end
+	if borderType == BORDERTYPE_SELECTED then backdrop = TOM.Display.Backdrops.selected end
 	local modelFrame = TOM.Display.ModelFrames[rctoindex(row, column)]
 	TOM.Display.ModelFrames[rctoindex(row, column)]:SetBackdrop(backdrop)
 	TOM.Display.ModelFrames[rctoindex(row, column)]:SetBackdropColor(0, 0, 0, 1)
@@ -73,9 +75,9 @@ function TOM.Display.RedrawBorders()
 			if TOM.Core.OutfitExists(page, row, column) then
 				local outfit = TOM.Core.GetOutfit(page, row, column)
 				if TOM.Core.IsOutfitApplied(outfit) then
-					TOM.Display.SetModelBorder(row, column, TOM.const.BORDERTYPE_APPLIED)
+					TOM.Display.SetModelBorder(row, column, BORDERTYPE_APPLIED)
 				elseif TOM.Core.IsOutfitSelected(outfit) then
-					TOM.Display.SetModelBorder(row, column, TOM.const.BORDERTYPE_SELECTED)
+					TOM.Display.SetModelBorder(row, column, BORDERTYPE_SELECTED)
 				else
 					TOM.Display.SetModelBorder(row, column)
 				end
@@ -97,9 +99,9 @@ function TOM.Display.Redraw(self)
 				--loosely keep track of what outfit is where
 				TOM.Core.DisplayOutfit(outfit.name, page, row, column)
 				if TOM.Core.IsOutfitApplied(outfit) then
-					TOM.Display.SetModelBorder(row, column, TOM.const.BORDERTYPE_APPLIED)
+					TOM.Display.SetModelBorder(row, column, BORDERTYPE_APPLIED)
 				elseif TOM.Core.IsOutfitSelected(outfit) then
-					TOM.Display.SetModelBorder(row, column, TOM.const.BORDERTYPE_SELECTED)
+					TOM.Display.SetModelBorder(row, column, BORDERTYPE_SELECTED)
 				else
 					TOM.Display.SetModelBorder(row, column)
 				end

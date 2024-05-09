@@ -6,7 +6,6 @@
 ## LoadOnDemand: 1
 ## LoadWith: Blizzard_Collections
 
-constants.lua
 TOMDatabase.lua
 TOMCore.lua
 TOMDisplayFrames.lua

@@ -1,5 +1,8 @@
 local addonName, TOM = ...
 
+local DROPDOWN_RENAME = 1
+local DROPDOWN_DELETE = 2
+
 local function outfitsButtonOnClick(self, button, down)
 	if not TOM.Display.Container:IsVisible() then
 		TOM.Display.Container:Show()
@@ -38,7 +41,7 @@ local function saveOutfitButtonOnClick(self, button, down)
 	local outfitName = TOM.Input.OutfitNameBox:GetText()
 	if outfitName == "" then return end
 	local slotData = {}
-	for slotId, slotName in pairs(TOM.const.SLOTID_TO_NAME) do
+	for slotId, slotName in pairs(TOM.Core.SLOTID_TO_NAME) do
 		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
 		slotData[slotName] = {base=baseSourceID, applied=appliedSourceID, pending=pendingSourceID, hasUndo=hasUndo}
 	end
@@ -56,13 +59,13 @@ local function saveOutfitButtonOnClick(self, button, down)
 end
 
 local function onDropdownMenuItemClicked(self, arg1, arg2)
-	if arg1 == TOM.const.DROPDOWN_RENAME then
+	if arg1 == DROPDOWN_RENAME then
 		local dialog = StaticPopup_Show("TOM_RenameOutfit")
 		if dialog then
 			--this feels a bit risky
 			dialog.data = TOM.Core.GetOutfitNameByFrame(TOM.activeModelFrame)
 		end
-	elseif arg1 == TOM.const.DROPDOWN_DELETE then
+	elseif arg1 == DROPDOWN_DELETE then
 		local outfitName = TOM.activeModelFrame.OutfitName:GetText()
 		StaticPopupDialogs["TOM_DeleteOutfit"].text = "Delete outfit \'" .. outfitName .. "\'?"
 		local dialog = StaticPopup_Show("TOM_DeleteOutfit")
@@ -76,9 +79,9 @@ local function initDropdownMenu(frame, level, menuList)
 	local info = UIDropDownMenu_CreateInfo()
 	info.func = onDropdownMenuItemClicked
 	info.notCheckable = true
-	info.text, info.arg1 = "Rename", TOM.const.DROPDOWN_RENAME
+	info.text, info.arg1 = "Rename", DROPDOWN_RENAME
 	UIDropDownMenu_AddButton(info)
-	info.text, info.arg1 = "Delete", TOM.const.DROPDOWN_DELETE
+	info.text, info.arg1 = "Delete", DROPDOWN_DELETE
 	UIDropDownMenu_AddButton(info)
 end
 

@@ -4,6 +4,23 @@ local addonName, TOM = ...
 TOM.Core = TOM.Core or {}
 
 TOM.Core.currentView = {}
+--make local
+TOM.Core.SLOTID_TO_NAME = {
+	[1] = "HEADSLOT",
+	[3] = "SHOULDERSLOT",
+	[4] = "SHIRTSLOT",
+	[5] = "CHESTSLOT",
+	[6] = "WAISTSLOT",
+	[7] = "LEGSSLOT",
+	[8] = "FEETSLOT",
+	[9] = "WRISTSLOT",
+	[10] = "HANDSSLOT",
+	[15] = "BACKSLOT",
+	[16] = "MAINHANDSLOT",
+	[17] = "SECONDARYHANDSLOT",
+	[18] = "RANGEDSLOT",
+	[19] = "TABARDSLOT"
+}
 
 local function getVisibleSlotId(slot)
 	if slot.pending > 0 then return tonumber(slot.pending)
@@ -90,7 +107,7 @@ end
 
 --TODO: fix unmaintainable logic, param should be a name, index or similar
 function TOM.Core.IsOutfitApplied(outfit)
-	for slotId, slotName in pairs(TOM.const.SLOTID_TO_NAME) do
+	for slotId, slotName in pairs(TOM.Core.SLOTID_TO_NAME) do
 		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
 		local equippedIdForSlot = getVisibleSlotId({applied=appliedSourceID, pending=0, base=baseSourceID, hasUndo=hasUndo})
 		local outfitIdForSlot = getVisibleSlotId(outfit.data[slotName])
@@ -102,7 +119,7 @@ function TOM.Core.IsOutfitApplied(outfit)
 end
 
 function TOM.Core.IsOutfitSelected(outfit)
-	for slotId, slotName in pairs(TOM.const.SLOTID_TO_NAME) do
+	for slotId, slotName in pairs(TOM.Core.SLOTID_TO_NAME) do
 		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
 		local equippedIdForSlot = TOM.Core.GetTransmogId({applied=appliedSourceID, pending=pendingSourceID, base=baseSourceID, hasUndo=hasUndo})
 		local outfitIdForSlot = TOM.Core.GetTransmogId(outfit.data[slotName])
