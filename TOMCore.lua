@@ -30,7 +30,7 @@ function TOM.Core.OverwriteOutfit(outfitName, outfitData)
 end
 
 function TOM.Core.DeleteOutfit(outfitName)
-	return TOM.DB.DeleteOutfit(outfitName)
+	return TOM.DB.DeleteOutfitByName(outfitName)
 end
 
 function TOM.Core.GetNumOutfits()
