@@ -6,10 +6,10 @@
 ## LoadOnDemand: 1
 ## LoadWith: Blizzard_Collections
 
-TOM_OutfitDBCharacter.lua
-TOM_Util.lua
-TOM_OutfitContainer.lua
-TOM_Page.lua
-TOM_PreviewModelFrame.lua
-TOM_WardrobeFrame.lua
-TransmogOutfitManager.lua
+constants.lua
+TOMDatabase.lua
+TOMSelection.lua
+TOMDisplay.lua
+TOMDisplayFrames.lua
+TOMInput.lua
+TOMInputFrames.lua
