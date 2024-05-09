@@ -1,68 +1,36 @@
 local addonName, TOM = ...
 
-local function TOM_OutfitsButton_OnClick(self, button, down)
-	if not TOM.OutfitContainer:IsVisible() then
-		TOM.OutfitContainer:Show()
-	else
-		TOM.OutfitContainer:Hide()
-	end
-end
+TOM.Input = TOM.Input or {}
 
-local function TOM_OutfitNameInput_OnTextChanged(self, userInput)
-	TOM.SetSaveButtonStatus()
-end
+TOM.Input.OutfitsButton = CreateFrame("Button", nil, WardrobeFrame, "UIPanelButtonTemplate")
+TOM.Input.OutfitsButton:ClearAllPoints()
+TOM.Input.OutfitsButton:SetPoint("TOPLEFT", 3, -60)
+TOM.Input.OutfitsButton:SetSize(60, 25)
+TOM.Input.OutfitsButton:SetText("Outfits")
 
-function TOM.SetSaveButtonStatus()
-	local validName = TOM.Core.IsValidName(TOM.OutfitNameInput:GetText())
-	if TOM.appliedOutfitName and (TOM.appliedOutfitName ~= TOM.OutfitNameInput:GetText()) then
-		local isOutfitDifferent = not TOM.Core.IsWearingOutfit(TOM.appliedOutfitName)
-		TOM.SaveOutfitButton:SetEnabled(validName and isOutfitDifferent)
-	else
-		TOM.SaveOutfitButton:SetEnabled(validName)
-	end
-end
+TOM.Input.OutfitNameBox = CreateFrame("EditBox", nil, WardrobeFrame, "InputBoxTemplate")
+TOM.Input.OutfitNameBox:ClearAllPoints()
+TOM.Input.OutfitNameBox:SetPoint("TOPLEFT", 70, -55)
+TOM.Input.OutfitNameBox:SetSize(175, 35)
+TOM.Input.OutfitNameBox:SetAutoFocus(false)
 
-local function TOM_SaveOutfitButton_OnClick(self, button, down)
-	local outfitName = TOM.OutfitNameInput:GetText()
-	if outfitName == "" then return end
-	local slotData = {}
-	for slotId, slotName in pairs(TOM.const.SLOTID_TO_NAME) do
-		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
-		slotData[slotName] = {base=baseSourceID, applied=appliedSourceID, pending=pendingSourceID, hasUndo=hasUndo}
-	end
-	if TOM.Core.GetOutfitByName(outfitName) > 0 then
-		StaticPopupDialogs["TOM_OverwriteOutfit"].text = "Overwrite \'" .. outfitName .. "\'?"
-		local dialog = StaticPopup_Show("TOM_OverwriteOutfit")
-		if dialog then
-			dialog.data = outfitName
-			dialog.data2 = slotData
-		end
-	else
-		TOM.Core.SaveOutfit(outfitName, slotData)
-	end
-	TOM.OutfitContainer_OnShow()
-end
+TOM.Input.SaveOutfitButton = CreateFrame("Button", nil, WardrobeFrame, "UIPanelButtonTemplate")
+TOM.Input.SaveOutfitButton:ClearAllPoints()
+TOM.Input.SaveOutfitButton:SetPoint("TOPLEFT", 248, -60)
+TOM.Input.SaveOutfitButton:SetSize(60, 25)
+TOM.Input.SaveOutfitButton:SetText("Save")
 
-TOM.OutfitsButton = CreateFrame("Button", nil, WardrobeFrame, "UIPanelButtonTemplate")
-TOM.OutfitsButton:ClearAllPoints()
-TOM.OutfitsButton:SetPoint("TOPLEFT", 3, -60)
-TOM.OutfitsButton:SetSize(60, 25)
-TOM.OutfitsButton:SetText("Outfits")
-TOM.OutfitsButton:SetScript("OnClick", TOM_OutfitsButton_OnClick)
+TOM.Input.PreviousPageButton = CreateFrame("Button", nil, TOM.Display.Container, "CollectionsPrevPageButton")
+TOM.Input.PreviousPageButton:ClearAllPoints()
+TOM.Input.PreviousPageButton:SetPoint("CENTER", TOM.Display.Container, "BOTTOM", 20, 40)
+TOM.Input.PreviousPageButton:SetEnabled(false)
 
-TOM.OutfitNameInput = CreateFrame("EditBox", nil, WardrobeFrame, "InputBoxTemplate")
-TOM.OutfitNameInput:ClearAllPoints()
-TOM.OutfitNameInput:SetPoint("TOPLEFT", 70, -55)
-TOM.OutfitNameInput:SetSize(175, 35)
-TOM.OutfitNameInput:SetAutoFocus(false)
-TOM.OutfitNameInput:SetScript("OnTextChanged", TOM_OutfitNameInput_OnTextChanged)
+TOM.Input.NextPageButton = CreateFrame("Button", nil, TOM.Display.Container, "CollectionsNextPageButton")
+TOM.Input.NextPageButton:ClearAllPoints()
+TOM.Input.NextPageButton:SetPoint("CENTER", TOM.Display.Container, "BOTTOM", 60, 40)
+TOM.Input.NextPageButton:SetEnabled(false)
 
-TOM.SaveOutfitButton = CreateFrame("Button", nil, WardrobeFrame, "UIPanelButtonTemplate")
-TOM.SaveOutfitButton:ClearAllPoints()
-TOM.SaveOutfitButton:SetPoint("TOPLEFT", 248, -60)
-TOM.SaveOutfitButton:SetSize(60, 25)
-TOM.SaveOutfitButton:SetText("Save")
-TOM.SaveOutfitButton:SetScript("OnClick", TOM_SaveOutfitButton_OnClick)
+TOM.Input.OutfitDropdown = CreateFrame("Frame", "TransmogOutfitManagerOutfitDropdown", TOM.Display.Container, "UIDropDownMenuTemplate")
 
 local function renameDialogOnAccept(self, oldName)
 	local newName = self.editBox:GetText()
@@ -95,7 +63,7 @@ StaticPopupDialogs["TOM_RenameOutfit"] = {
 
 local function deleteDialogOnAccept(self, name)
 	TOM.Core.DeleteOutfit(name)
-	TOM.OutfitContainer_OnShow()
+	TOM.Display.Redraw()
 end
 
 StaticPopupDialogs["TOM_DeleteOutfit"] = {
@@ -111,7 +79,7 @@ StaticPopupDialogs["TOM_DeleteOutfit"] = {
 
 local function overwriteDialogOnAccept(self, name, data)
 	TOM.Core.OverwriteOutfit(name, data)
-	TOM.OutfitContainer_OnShow()
+	TOM.Display.Redraw()
 end
 
 StaticPopupDialogs["TOM_OverwriteOutfit"] = {

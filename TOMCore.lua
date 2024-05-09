@@ -63,7 +63,7 @@ function TOM.Core.ResetDisplay()
 end
 
 function TOM.Core.DisplayOutfit(outfitName, page, row, column)
-	TOM.Core.currentView[outfitName] = TOM.GetPreviewModelFrame(row, column)
+	TOM.Core.currentView[outfitName] = TOM.Display.GetModelFrame(row, column)
 end
 
 function TOM.Core.GetOutfitNameByFrame(previewModelFrame)

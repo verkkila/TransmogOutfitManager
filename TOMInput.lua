@@ -1,67 +1,90 @@
 local addonName, TOM = ...
 
-local currentPage = 1
-
-function TOM.SetPageText()
-	TOM.OutfitContainer.PageText:SetText(string.format("Page %d / %d", currentPage, TOM.NumPages()))
+local function outfitsButtonOnClick(self, button, down)
+	if not TOM.Display.Container:IsVisible() then
+		TOM.Display.Container:Show()
+	else
+		TOM.Display.Container:Hide()
+	end
 end
 
-function TOM.GetCurrentPage()
-	return currentPage
+local function outfitNameInputOnTextChanged(self, userInput)
+	TOM.Display.UpdateSaveButton()
 end
 
-function TOM.NumPages()
-	return math.max(1, math.ceil(TOM.Core.GetNumOutfits() / 8))
+local function previousPageButtonOnClick(self, button, down)
+	if button ~= "LeftButton" then return end
+	if TOM.Display.GetCurrentPage() > 1 then
+		TOM.Display.PreviousPage()
+		TOM.Input.NextPageButton:SetEnabled(true)
+	end
+	if TOM.Display.GetCurrentPage() == 1 then TOM.Input.PreviousPageButton:SetEnabled(false) end
+	TOM.Display.Redraw()
+	TOM.Display.UpdatePageText()
 end
 
-function TOM.SetPageButtons()
-	if currentPage == 1 then
-		TOM.PreviousPageButton:SetEnabled(false)
-		if TOM.NumPages() > 1 then
-			TOM.NextPageButton:SetEnabled(true)
+local function nextPageButtonOnClick(self, button, down)
+	if button ~= "LeftButton" then return end
+	if TOM.Display.GetCurrentPage() < math.ceil(TOM.Core.GetNumOutfits() / 8) then
+		TOM.Display.NextPage()
+		TOM.Input.PreviousPageButton:SetEnabled(true)
+	end
+	if TOM.Display.GetCurrentPage() == TOM.Display.NumPages() then TOM.Input.NextPageButton:SetEnabled(false) end
+	TOM.Display.Redraw()
+	TOM.Display.UpdatePageText()
+end
+
+local function saveOutfitButtonOnClick(self, button, down)
+	local outfitName = TOM.Input.OutfitNameBox:GetText()
+	if outfitName == "" then return end
+	local slotData = {}
+	for slotId, slotName in pairs(TOM.const.SLOTID_TO_NAME) do
+		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
+		slotData[slotName] = {base=baseSourceID, applied=appliedSourceID, pending=pendingSourceID, hasUndo=hasUndo}
+	end
+	if TOM.Core.GetOutfitByName(outfitName) > 0 then
+		StaticPopupDialogs["TOM_OverwriteOutfit"].text = "Overwrite \'" .. outfitName .. "\'?"
+		local dialog = StaticPopup_Show("TOM_OverwriteOutfit")
+		if dialog then
+			dialog.data = outfitName
+			dialog.data2 = slotData
+		end
+	else
+		TOM.Core.SaveOutfit(outfitName, slotData)
+	end
+	TOM.Display.Redraw()
+end
+
+local function onDropdownMenuItemClicked(self, arg1, arg2)
+	if arg1 == TOM.const.DROPDOWN_RENAME then
+		local dialog = StaticPopup_Show("TOM_RenameOutfit")
+		if dialog then
+			--this feels a bit risky
+			dialog.data = TOM.Core.GetOutfitNameByFrame(TOM.activeModelFrame)
+		end
+	elseif arg1 == TOM.const.DROPDOWN_DELETE then
+		local outfitName = TOM.activeModelFrame.OutfitName:GetText()
+		StaticPopupDialogs["TOM_DeleteOutfit"].text = "Delete outfit \'" .. outfitName .. "\'?"
+		local dialog = StaticPopup_Show("TOM_DeleteOutfit")
+		if dialog then
+			dialog.data = outfitName
 		end
 	end
-	if currentPage == TOM.NumPages() then
-		TOM.NextPageButton:SetEnabled(false)
-	else
-		TOM.NextPageButton:SetEnabled(true)
-	end
 end
 
-local function TOM_PreviousPageButton_OnClick(self, button, down)
-	if button ~= "LeftButton" then return end
-	if currentPage > 1 then
-		currentPage = currentPage - 1
-		TOM.NextPageButton:SetEnabled(true)
-	end
-	if currentPage == 1 then TOM.PreviousPageButton:SetEnabled(false) end
-	TOM.OutfitContainer_OnShow()
-	TOM.SetPageText()
+local function initDropdownMenu(frame, level, menuList)
+	local info = UIDropDownMenu_CreateInfo()
+	info.func = onDropdownMenuItemClicked
+	info.notCheckable = true
+	info.text, info.arg1 = "Rename", TOM.const.DROPDOWN_RENAME
+	UIDropDownMenu_AddButton(info)
+	info.text, info.arg1 = "Delete", TOM.const.DROPDOWN_DELETE
+	UIDropDownMenu_AddButton(info)
 end
 
-local function TOM_NextPageButton_OnClick(self, button, down)
-	if button ~= "LeftButton" then return end
-	if currentPage < math.ceil(TOM.Core.GetNumOutfits() / 8) then
-		currentPage = currentPage + 1
-		TOM.PreviousPageButton:SetEnabled(true)
-	end
-	if currentPage == TOM.NumPages() then TOM.NextPageButton:SetEnabled(false) end
-	TOM.OutfitContainer_OnShow()
-	TOM.SetPageText()
-end
-
-TOM.PreviousPageButton = CreateFrame("Button", nil, TOM.OutfitContainer, "CollectionsPrevPageButton")
-TOM.PreviousPageButton:ClearAllPoints()
-TOM.PreviousPageButton:SetPoint("CENTER", TOM.OutfitContainer, "BOTTOM", 20, 40)
-TOM.PreviousPageButton:SetScript("OnClick", TOM_PreviousPageButton_OnClick)
-TOM.PreviousPageButton:SetEnabled(false)
-
-TOM.NextPageButton = CreateFrame("Button", nil, TOM.OutfitContainer, "CollectionsNextPageButton")
-TOM.NextPageButton:ClearAllPoints()
-TOM.NextPageButton:SetPoint("CENTER", TOM.OutfitContainer, "BOTTOM", 60, 40)
-TOM.NextPageButton:SetScript("OnClick", TOM_NextPageButton_OnClick)
-TOM.NextPageButton:SetEnabled(false)
-
-TOM.OutfitContainer.PageText = TOM.OutfitContainer:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-TOM.OutfitContainer.PageText:ClearAllPoints()
-TOM.OutfitContainer.PageText:SetPoint("CENTER", TOM.OutfitContainer, "BOTTOM", -40, 40)
+TOM.Input.OutfitsButton:SetScript("OnClick", outfitsButtonOnClick)
+TOM.Input.OutfitNameBox:SetScript("OnTextChanged", outfitNameInputOnTextChanged)
+TOM.Input.SaveOutfitButton:SetScript("OnClick", saveOutfitButtonOnClick)
+TOM.Input.PreviousPageButton:SetScript("OnClick", previousPageButtonOnClick)
+TOM.Input.NextPageButton:SetScript("OnClick", nextPageButtonOnClick)
+UIDropDownMenu_Initialize(TOM.Input.OutfitDropdown, initDropdownMenu, "MENU")
