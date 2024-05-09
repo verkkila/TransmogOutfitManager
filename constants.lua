@@ -1,10 +1,12 @@
 local addonName, TOM = ...
 
-TOM.DROPDOWN_RENAME = 1
-TOM.DROPDOWN_DELETE = 2
-TOM.BORDERTYPE_APPLIED = 1
-TOM.BORDERTYPE_SELECTED = 2
-TOM.SLOTID_TO_NAME = {
+TOM.const = TOM.const or {}
+TOM.const.DROPDOWN_RENAME = 1
+TOM.const.DROPDOWN_DELETE = 2
+TOM.const.BORDERTYPE_APPLIED = 1
+TOM.const.BORDERTYPE_SELECTED = 2
+-- TODO rename
+TOM.const.SLOTID_TO_NAME = {
 		[1] = "HEADSLOT",
 		[3] = "SHOULDERSLOT",
 		[4] = "SHIRTSLOT",
@@ -20,7 +22,14 @@ TOM.SLOTID_TO_NAME = {
 		[18] = "RANGEDSLOT",
 		[19] = "TABARDSLOT"
 }
---TransmogOutfitManagerDB = TransmogOutfitManagerDB or {}
+TOM.const.ROWS = 2
+TOM.const.COLS = 4
+TOM.const.MODEL_WIDTH = 125
+TOM.const.MODEL_HEIGHT = 175
+TOM.const.SPACING = 10
+TOM.const.OFFSET_X = 0
+TOM.const.OFFSET_Y = 15
+
 
 function TOM.GetTransmogId(slot)
 	if slot.hasUndo then return tonumber(slot.base)
@@ -47,7 +56,7 @@ end
 
 --TODO: fix unmaintainable logic
 function TOM.IsOutfitApplied(outfit)
-	for slotId, slotName in pairs(TOM.SLOTID_TO_NAME) do
+	for slotId, slotName in pairs(TOM.const.SLOTID_TO_NAME) do
 		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
 		local equippedIdForSlot = GetEffectiveSlotId({applied=appliedSourceID, pending=0, base=baseSourceID, hasUndo=hasUndo})
 		local outfitIdForSlot = GetEffectiveSlotId(outfit.data[slotName])
@@ -59,7 +68,7 @@ function TOM.IsOutfitApplied(outfit)
 end
 
 function TOM.IsOutfitSelected(outfit)
-	for slotId, slotName in pairs(TOM.SLOTID_TO_NAME) do
+	for slotId, slotName in pairs(TOM.const.SLOTID_TO_NAME) do
 		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
 		local equippedIdForSlot = TOM.GetTransmogId({applied=appliedSourceID, pending=pendingSourceID, base=baseSourceID, hasUndo=hasUndo})
 		local outfitIdForSlot = TOM.GetTransmogId(outfit.data[slotName])

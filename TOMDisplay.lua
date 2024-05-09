@@ -7,9 +7,9 @@ function TOM.OutfitContainer_RedrawBorders()
 			if TOM.OutfitExists(index) then
 				local outfit = TOM.GetOutfit(index)
 				if TOM.IsOutfitApplied(outfit) then
-					TOM.SetBorderByModelPosition(row, column, TOM.BORDERTYPE_APPLIED)
+					TOM.SetBorderByModelPosition(row, column, TOM.const.BORDERTYPE_APPLIED)
 				elseif TOM.IsOutfitSelected(outfit) then
-					TOM.SetBorderByModelPosition(row, column, TOM.BORDERTYPE_SELECTED)
+					TOM.SetBorderByModelPosition(row, column, TOM.const.BORDERTYPE_SELECTED)
 				else
 					TOM.SetBorderByModelPosition(row, column)
 				end
@@ -39,9 +39,9 @@ function TOM.OutfitContainer_OnShow(self)
 			if TOM.OutfitExists(index) then
 				local outfit = TOM.GetOutfit(index)
 				if TOM.IsOutfitApplied(outfit) then
-					TOM.SetBorderByModelPosition(row, column, TOM.BORDERTYPE_APPLIED)
+					TOM.SetBorderByModelPosition(row, column, TOM.const.BORDERTYPE_APPLIED)
 				elseif TOM.IsOutfitSelected(outfit) then
-					TOM.SetBorderByModelPosition(row, column, TOM.BORDERTYPE_SELECTED)
+					TOM.SetBorderByModelPosition(row, column, TOM.const.BORDERTYPE_SELECTED)
 				else
 					TOM.SetBorderByModelPosition(row, column)
 				end
@@ -107,9 +107,9 @@ local function initDropdownMenu(frame, level, menuList)
 	local info = UIDropDownMenu_CreateInfo()
 	info.func = onDropdownMenuItemClicked
 	info.notCheckable = true
-	info.text, info.arg1 = "Rename", TOM.DROPDOWN_RENAME
+	info.text, info.arg1 = "Rename", TOM.const.DROPDOWN_RENAME
 	UIDropDownMenu_AddButton(info)
-	info.text, info.arg1 = "Delete", TOM.DROPDOWN_DELETE
+	info.text, info.arg1 = "Delete", TOM.const.DROPDOWN_DELETE
 	UIDropDownMenu_AddButton(info)
 end
 

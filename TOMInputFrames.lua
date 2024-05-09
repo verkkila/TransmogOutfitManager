@@ -26,7 +26,7 @@ local function TOM_SaveOutfitButton_OnClick(self, button, down)
 	local outfitName = TOM.OutfitNameInput:GetText()
 	if outfitName == "" then return end
 	local slotData = {}
-	for slotId, slotName in pairs(TOM.SLOTID_TO_NAME) do
+	for slotId, slotName in pairs(TOM.const.SLOTID_TO_NAME) do
 		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
 		slotData[slotName] = {base=baseSourceID, applied=appliedSourceID, pending=pendingSourceID, hasUndo=hasUndo}
 	end
