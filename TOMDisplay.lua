@@ -4,8 +4,8 @@ function TOM.OutfitContainer_RedrawBorders()
 	for row = 1, 2 do
 		for column = 1, 4 do
 			local index = ((TOM.GetCurrentPage() - 1) * 8) + ((row - 1) * 4 + column)
-			if TOM.OutfitExists(index) then
-				local outfit = TOM.GetOutfit(index)
+			if TOM.DB.OutfitExists(index) then
+				local outfit = TOM.DB.GetOutfit(index)
 				if TOM.IsOutfitApplied(outfit) then
 					TOM.SetBorderByModelPosition(row, column, TOM.const.BORDERTYPE_APPLIED)
 				elseif TOM.IsOutfitSelected(outfit) then
@@ -19,7 +19,14 @@ function TOM.OutfitContainer_RedrawBorders()
 end
 
 function TOM.OutfitContainer_OnEvent(self, event, ...)
-	if event == "TRANSMOGRIFY_SUCCESS" then
+	if event == "ADDON_LOADED" then
+		local addonname = ...
+		if addonName == addonname then
+			TOM.DB.Init()
+			TOM.DB.CountOutfits()
+			TOM.OutfitContainer:UnregisterEvent("ADDON_LOADED")
+		end
+	elseif event == "TRANSMOGRIFY_SUCCESS" then
 		TOM.OutfitContainer_RedrawBorders()
 	elseif event == "TRANSMOGRIFY_UPDATE" then
 		TOM.OutfitContainer_RedrawBorders()
@@ -29,15 +36,15 @@ end
 
 --TODO split this function into several smaller ones
 function TOM.OutfitContainer_OnShow(self)
-	TOM.CountOutfits()
+	--TOM.DB.CountOutfits()
 	TOM.SetPageText()
 	TOM.SetPageButtons()
 	if TOM.GetCurrentPage() > TOM.NumPages() then TOM.PreviousPageButton:Click("LeftButton") end
 	for row = 1, 2 do
 		for column = 1, 4 do
 			local index = ((TOM.GetCurrentPage() - 1) * 8) + ((row - 1) * 4 + column) --quite the expression
-			if TOM.OutfitExists(index) then
-				local outfit = TOM.GetOutfit(index)
+			if TOM.DB.OutfitExists(index) then
+				local outfit = TOM.DB.GetOutfit(index)
 				if TOM.IsOutfitApplied(outfit) then
 					TOM.SetBorderByModelPosition(row, column, TOM.const.BORDERTYPE_APPLIED)
 				elseif TOM.IsOutfitSelected(outfit) then
@@ -67,7 +74,7 @@ function TOM.PreviewModel_OnMouseDown(self, button)
 		local outfitName = GetMouseFocus().OutfitName:GetText()
 		if not outfitName then return end
 		local outfitData = nil
-		for outfit in TOM.GetAllOutfits() do
+		for outfit in TOM.DB.GetAllOutfits() do
 			if outfitName == outfit.name then
 				for invSlotName, invSlotData in pairs(outfit.data) do
 					local transmogLoc = TransmogUtil.CreateTransmogLocation(invSlotName, Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
@@ -88,12 +95,12 @@ function TOM.PreviewModel_OnMouseDown(self, button)
 end
 
 local function onDropdownMenuItemClicked(self, arg1, arg2)
-	if arg1 == TOM.DROPDOWN_RENAME then
+	if arg1 == TOM.const.DROPDOWN_RENAME then
 		local dialog = StaticPopup_Show("TOM_RenameOutfit")
 		if dialog then
 			dialog.data = TOM.activeModelFrame.OutfitName:GetText()
 		end
-	elseif arg1 == TOM.DROPDOWN_DELETE then
+	elseif arg1 == TOM.const.DROPDOWN_DELETE then
 		local outfitName = TOM.activeModelFrame.OutfitName:GetText()
 		StaticPopupDialogs["TOM_DeleteOutfit"].text = "Delete outfit \'" .. outfitName .. "\'?"
 		local dialog = StaticPopup_Show("TOM_DeleteOutfit")
@@ -123,6 +130,7 @@ TOM.OutfitContainer:EnableMouse(true)
 TOM.OutfitContainer:RegisterForDrag("LeftButton")
 TOM.OutfitContainer:RegisterEvent("TRANSMOGRIFY_SUCCESS")
 TOM.OutfitContainer:RegisterEvent("TRANSMOGRIFY_UPDATE")
+TOM.OutfitContainer:RegisterEvent("ADDON_LOADED")
 TOM.OutfitContainer:SetScript("OnEvent", TOM.OutfitContainer_OnEvent)
 TOM.OutfitContainer:SetScript("OnShow", TOM.OutfitContainer_OnShow)
 TOM.OutfitContainer:SetScript("OnDragStart", function(self, button)

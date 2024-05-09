@@ -1,66 +1,50 @@
 local addonName, TOM = ...
 
-local function renameOutfit(self, oldName, newName)
-	if TOM.RenameOutfit(oldName, newName) then
-		TOM.activeModelFrame.OutfitName:SetText(newName)
+--'Selection' is not the most descriptive name but it'll do for now
+
+function TOM.GetTransmogId(slot)
+	if slot.hasUndo then return tonumber(slot.base)
+	elseif slot.pending > 0 then return tonumber(slot.pending)
+	elseif slot.applied > 0 then return tonumber(slot.applied)
+	else return tonumber(slot.base) end
+end
+
+--TODO rename
+local function GetEffectiveSlotId(slot)
+	if slot.pending > 0 then return tonumber(slot.pending)
+	elseif slot.applied > 0 then return tonumber(slot.applied)
+	else return tonumber(slot.base) end
+end
+
+function TOM.IsValidName(name)
+	local nameLength = string.len(name)
+	if nameLength == 0 or nameLength > 15 then
+		return false
+	else
+		return true
 	end
 end
 
-local function deleteOutfit(self, outfitName)
-	TOM.DeleteOutfitByName(outfitName)
-	TOM.OutfitContainer_OnShow()
+--TODO: fix unmaintainable logic
+function TOM.IsOutfitApplied(outfit)
+	for slotId, slotName in pairs(TOM.const.SLOTID_TO_NAME) do
+		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
+		local equippedIdForSlot = GetEffectiveSlotId({applied=appliedSourceID, pending=0, base=baseSourceID, hasUndo=hasUndo})
+		local outfitIdForSlot = GetEffectiveSlotId(outfit.data[slotName])
+		if outfit.data[slotName].hasUndo then return false end
+		if equippedIdForSlot ~= outfitIdForSlot then return false end
+	end
+	TOM.appliedOutfitName = outfit.name
+	return true
 end
 
-local function overwriteOutfit(self, outfitName, slotData)
-	TOM.OverwriteOutfit(outfitName, slotData)
-	TOM.OutfitContainer_OnShow()
+function TOM.IsOutfitSelected(outfit)
+	for slotId, slotName in pairs(TOM.const.SLOTID_TO_NAME) do
+		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
+		local equippedIdForSlot = TOM.GetTransmogId({applied=appliedSourceID, pending=pendingSourceID, base=baseSourceID, hasUndo=hasUndo})
+		local outfitIdForSlot = TOM.GetTransmogId(outfit.data[slotName])
+		if equippedIdForSlot ~= outfitIdForSlot then return false end
+	end
+	TOM.selectedOutfitName = outfit.name
+	return true
 end
-
-StaticPopupDialogs["TOM_RenameOutfit"] = {
-	text = "Enter new name for outfit",
-	button1 = "Rename",
-	button2 = "Cancel",
-	enterClicksFirstButton = true,
-	hasEditBox = true,
-	OnShow = function(self, data)
-		self.button1:Disable()
-	end,
-	EditBoxOnTextChanged = function(self, data)
-		if TOM.IsValidName(self:GetText()) then
-			self:GetParent().button1:SetEnabled(TOM.OutfitExistsByName(self:GetText()) == 0)
-		end
-	end,
-	OnAccept = function(self, data, data2)
-		renameOutfit(self, data, self.editBox:GetText())
-	end,
-	timeout = 0,
-	whileDead = false,
-	hideOnEscape = true,
-	preferredIndex = 3
-}
-
-StaticPopupDialogs["TOM_DeleteOutfit"] = {
-	text = "---",
-	button1 = "Yes",
-	button2 = "No",
-	OnAccept = function(self, data)
-		deleteOutfit(self, data)
-	end,
-	timeout = 0,
-	whileDead = false,
-	hideOnEscape = true,
-	preferredIndex = 3
-}
-
-StaticPopupDialogs["TOM_OverwriteOutfit"] = {
-	text = "---",
-	button1 = "Yes",
-	button2 = "No",
-	OnAccept = function(self, data, data2)
-		overwriteOutfit(self, data, data2)
-	end,
-	timeout = 0,
-	whileDead = false,
-	hideOnEscape = true,
-	preferredIndex = 3
-}

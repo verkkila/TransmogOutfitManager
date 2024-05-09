@@ -15,7 +15,7 @@ end
 function TOM.SetSaveButtonStatus()
 	local validName = TOM.IsValidName(TOM.OutfitNameInput:GetText())
 	if TOM.appliedOutfitName and (TOM.appliedOutfitName ~= TOM.OutfitNameInput:GetText()) then
-		local isOutfitDifferent = not TOM.IsWearingOutfit(TOM.appliedOutfitName)
+		local isOutfitDifferent = not TOM.DB.IsWearingOutfit(TOM.appliedOutfitName)
 		TOM.SaveOutfitButton:SetEnabled(validName and isOutfitDifferent)
 	else
 		TOM.SaveOutfitButton:SetEnabled(validName)
@@ -30,7 +30,7 @@ local function TOM_SaveOutfitButton_OnClick(self, button, down)
 		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
 		slotData[slotName] = {base=baseSourceID, applied=appliedSourceID, pending=pendingSourceID, hasUndo=hasUndo}
 	end
-	if TOM.OutfitExistsByName(outfitName) > 0 then
+	if TOM.DB.OutfitExistsByName(outfitName) > 0 then
 		StaticPopupDialogs["TOM_OverwriteOutfit"].text = "Overwrite \'" .. outfitName .. "\'?"
 		local dialog = StaticPopup_Show("TOM_OverwriteOutfit")
 		if dialog then
@@ -38,7 +38,7 @@ local function TOM_SaveOutfitButton_OnClick(self, button, down)
 			dialog.data2 = slotData
 		end
 	else
-		TOM.SaveOutfit(outfitName, slotData)
+		TOM.DB.SaveOutfit(outfitName, slotData)
 	end
 	TOM.OutfitContainer_OnShow()
 end
@@ -63,3 +63,64 @@ TOM.SaveOutfitButton:SetPoint("TOPLEFT", 248, -60)
 TOM.SaveOutfitButton:SetSize(60, 25)
 TOM.SaveOutfitButton:SetText("Save")
 TOM.SaveOutfitButton:SetScript("OnClick", TOM_SaveOutfitButton_OnClick)
+
+local function renameDialogOnAccept(self, oldName)
+	local newName = self.editBox:GetText()
+	if TOM.DB.RenameOutfit(oldName, newName) then
+		--RenameOutfit returns index so could fetch the new name instead of using editbox
+		TOM.activeModelFrame.OutfitName:SetText(newName)
+	end
+end
+
+StaticPopupDialogs["TOM_RenameOutfit"] = {
+	text = "Enter new name for outfit",
+	button1 = "Rename",
+	button2 = "Cancel",
+	enterClicksFirstButton = true,
+	hasEditBox = true,
+	OnShow = function(self, data)
+		self.button1:Disable()
+	end,
+	EditBoxOnTextChanged = function(self, data)
+		if TOM.IsValidName(self:GetText()) then
+			self:GetParent().button1:SetEnabled(TOM.DB.OutfitExistsByName(self:GetText()) == 0)
+		end
+	end,
+	OnAccept = renameDialogOnAccept,
+	timeout = 0,
+	whileDead = false,
+	hideOnEscape = true,
+	preferredIndex = 3
+}
+
+local function deleteDialogOnAccept(self, name)
+	TOM.DB.DeleteOutfitByName(name)
+	TOM.OutfitContainer_OnShow()
+end
+
+StaticPopupDialogs["TOM_DeleteOutfit"] = {
+	text = "---",
+	button1 = "Yes",
+	button2 = "No",
+	OnAccept = deleteDialogOnAccept,
+	timeout = 0,
+	whileDead = false,
+	hideOnEscape = true,
+	preferredIndex = 3
+}
+
+local function overwriteDialogOnAccept(self, name, data)
+	TOM.DB.OverwriteOutfit(name, data)
+	TOM.OutfitContainer_OnShow()
+end
+
+StaticPopupDialogs["TOM_OverwriteOutfit"] = {
+	text = "---",
+	button1 = "Yes",
+	button2 = "No",
+	OnAccept = overwriteDialogOnAccept,
+	timeout = 0,
+	whileDead = false,
+	hideOnEscape = true,
+	preferredIndex = 3
+}
