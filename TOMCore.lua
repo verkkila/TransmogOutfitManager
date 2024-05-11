@@ -5,7 +5,7 @@ TransmogOutfitManagerOptions = TransmogOutfitManagerOptions or {}
 
 TOM.Core = TOM.Core or {}
 
---associates frames with cache indexes, for mouse interaction
+--associate offsets with frames (for mouse interaction), multiply offset/index by (page - 1) * 8 to get cache index
 local currentView = {}
 
 --{{name, metadata, dbIndex}, {...}}
@@ -46,7 +46,13 @@ local function rctoindex(r, c)
 	return ((r - 1) * 4 + c)
 end
 
---comparison function for two cache entries, puts favorites first
+local function getFullPlayerName(name, realm)
+	local charName = name or UnitName("player")
+	local charRealm = realm or GetRealmName()
+	return strjoin("-", charName, charRealm)
+end
+
+--sort by favorites before non-favorites
 local function favcmp(a, b)
 	if not b then return true end
 	local fullName = getFullPlayerName()
@@ -58,7 +64,7 @@ local function favcmp(a, b)
 	for _, name in pairs(bFavoritedOn) do
 		if name == fullName then bIsFavorited = true end
 	end
-	--if both or neither are favorited, default to timestamp of creation
+	--if both or neither are favorited, compare by timestamp
 	if (aIsFavorited and bIsFavorited) or (not aIsFavorited and not bIsFavorited) then
 		return a.metadata.createdAt < b.metadata.createdAt
 	end
@@ -75,7 +81,6 @@ local function isValidOutfitForPlayer(dbIndex)
 	end
 end
 
---shouldnt access outfit data directly (probably) but fix later
 local function buildCache()
 	local myName, myRealm, myClass = TOM.Core.GetPlayerInfo()
 	wipe(cache)
@@ -90,16 +95,16 @@ local function buildCache()
 	sort(cache, favcmp)
 end
 
---just do this for now
-function TOM.Core.Refresh()
-	buildCache()
-	TOM.Display.Redraw()
-end
-
 function TOM.Core.Init()
 	TOM.Options = TransmogOutfitManagerOptions
 	TOM.DB.Init()
 	buildCache()
+end
+
+--just do this for now
+function TOM.Core.Refresh()
+	buildCache()
+	TOM.Display.Redraw()
 end
 
 function TOM.Core.GetPlayerInfo()
@@ -107,8 +112,7 @@ function TOM.Core.GetPlayerInfo()
 end
 
 function TOM.Core.OutfitExists(outfitName, charName, charRealm, charClass)
-	local res = TOM.DB.OutfitExists(outfitName, charName, charRealm, charClass)
-	return res
+	return TOM.DB.OutfitExists(outfitName, charName, charRealm, charClass)
 end
 
 function TOM.Core.GenerateSlotData()
@@ -147,8 +151,7 @@ function TOM.Core.OverwriteOutfit(outfitInfo)
 	if not outfitInfo.name or not outfitInfo.charName or not outfitInfo.charRealm or not outfitInfo.charClass then
 		return false
 	end
-	local res = TOM.DB.OverwriteOutfit(outfitInfo.name, outfitInfo.charName, outfitInfo.charRealm, outfitInfo.charClass, TOM.Core.GenerateSlotData())
-	return res
+	return TOM.DB.OverwriteOutfit(outfitInfo.name, outfitInfo.charName, outfitInfo.charRealm, outfitInfo.charClass, TOM.Core.GenerateSlotData())
 end
 
 function TOM.Core.DeleteOutfit(modelFrame)
@@ -177,9 +180,9 @@ function TOM.Core.GetOutfit(page, row, column)
 end
 
 function TOM.Core.GetOutfitByFrame(modelFrame)
-	for index, frame in ipairs(currentView) do
+	for offset, frame in ipairs(currentView) do
 		if modelFrame == frame then
-			local cacheIndex = ((TOM.Display.GetCurrentPage() - 1) * 8) + index
+			local cacheIndex = ((TOM.Display.GetCurrentPage() - 1) * 8) + offset
 			return TOM.DB.GetOutfit(cache[cacheIndex].dbIndex), cacheIndex
 		end
 	end
@@ -191,13 +194,6 @@ end
 
 function TOM.Core.SetModelFrame(modelFrame, row, column)
 	currentView[rctoindex(row, column)] = modelFrame
-end
-
---returns "CharName-RealmName" representation
-function getFullPlayerName(name, realm)
-	local charName = name or UnitName("player")
-	local charRealm = realm or GetRealmName()
-	return strjoin("-", charName, charRealm)
 end
 
 function TOM.Core.IsFavorited(modelFrame)
@@ -262,7 +258,7 @@ function TOM.Core.IsOutfitApplied(outfit)
 			if equippedIdForSlot ~= outfitIdForSlot then return false end
 		end
 	end
-	TOM.appliedOutfit = outfit
+	TOM.Core.appliedOutfit = outfit
 	return true
 end
 
@@ -275,6 +271,5 @@ function TOM.Core.IsOutfitSelected(outfit)
 			if equippedIdForSlot ~= outfitIdForSlot then return false end
 		end
 	end
-	TOM.selectedOutfit = outfit
 	return true
 end

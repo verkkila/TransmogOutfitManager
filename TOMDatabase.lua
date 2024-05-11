@@ -26,11 +26,6 @@ TOM.DB.Keys = {
     ["MODIFIED_AT"] = "modifiedAt"
 }
 
-local function validateOutfit(outfit)
-    --TODO: validate data and metadata
-    return outfit.name ~= nil
-end
-
 function getDefaultMetadata()
     local m = {}
     local now = GetServerTime()
@@ -60,12 +55,21 @@ local function migrateOutfits()
     return count
 end
 
+function countOutfits()
+    numOutfits = 0
+    for _, outfit in pairs(TOM.DB._sources.accDB) do
+        --should do validation here, but alas
+        numOutfits = numOutfits + 1
+    end
+    return numOutfits
+end
+
 function TOM.DB.Init()
     TOM.DB._sources = {}
     TOM.DB._sources.charDB = TransmogOutfitManagerDB
     TOM.DB._sources.accDB = TransmogOutfitManagerDBAccount
     migrateOutfits()
-    TOM.DB.CountOutfits()
+    countOutfits()
 end
 
 function TOM.DB.OutfitExists(outfitName, charName, charRealm, charClass)
@@ -185,14 +189,5 @@ function TOM.DB.NumSavedOutfits()
     if numOutfits then
         return numOutfits
     end
-    return TOM.CountOutfits()
-end
-
-function TOM.DB.CountOutfits()
-    numOutfits = 0
-    for _, outfit in pairs(TOM.DB._sources.accDB) do
-        --should do validation here, but alas
-        numOutfits = numOutfits + 1
-    end
-    return numOutfits
+    return countOutfits()
 end
