@@ -1,6 +1,8 @@
 local addonName, TOM = ...
 --TODO: add documentation
 
+TransmogOutfitManagerOptions = TransmogOutfitManagerOptions or {}
+
 TOM.Core = TOM.Core or {}
 
 --associates frames with cache indexes, for mouse interaction
@@ -63,12 +65,10 @@ local function favcmp(a, b)
 	return aIsFavorited and not bIsFavorited
 end
 
-TOM.Core.shareOutfits = true
-
 local function isValidOutfitForPlayer(dbIndex)
 	local myName, myRealm, myClass = TOM.Core.GetPlayerInfo()
 	if TOM.DB.GetOutfitMetadata(dbIndex, TOM.DB.Keys["OWNER_CLASS"]) == myClass then
-		if not TOM.Core.shareOutfits then
+		if not TOM.Options.shareOutfits then
 			return TOM.DB.GetOutfitMetadata(dbIndex, TOM.DB.Keys["OWNER_NAME"]) == myName
 		end
 		return true
@@ -90,7 +90,14 @@ local function buildCache()
 	sort(cache, favcmp)
 end
 
+--just do this for now
+function TOM.Core.Refresh()
+	buildCache()
+	TOM.Display.Redraw()
+end
+
 function TOM.Core.Init()
+	TOM.Options = TransmogOutfitManagerOptions
 	TOM.DB.Init()
 	buildCache()
 end

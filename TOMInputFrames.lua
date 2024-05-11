@@ -30,6 +30,11 @@ TOM.Input.NextPageButton:ClearAllPoints()
 TOM.Input.NextPageButton:SetPoint("CENTER", TOM.Display.Container, "BOTTOM", 60, 40)
 TOM.Input.NextPageButton:SetEnabled(false)
 
+TOM.Input.ShareOutfitsButton = CreateFrame("CheckButton", nil, TOM.Display.Container, "ChatConfigCheckButtonTemplate")
+TOM.Input.ShareOutfitsButton:ClearAllPoints()
+TOM.Input.ShareOutfitsButton:SetPoint("CENTER", TOM.Display.Container, "TOPLEFT", 60, -30)
+TOM.Input.ShareOutfitsButton.Text:SetText("Show outfits from other characters")
+
 TOM.Input.OutfitDropdown = CreateFrame("Frame", "TransmogOutfitManagerOutfitDropdown", TOM.Display.Container, "UIDropDownMenuTemplate")
 
 local function renameDialogOnAccept(self)

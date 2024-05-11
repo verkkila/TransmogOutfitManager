@@ -3,7 +3,7 @@
 ## Title: TransmogOutfitManager
 ## Notes: Saves your custom transmogs as preset outfits
 ## SavedVariables: TransmogOutfitManagerDBAccount
-## SavedVariablesPerCharacter: TransmogOutfitManagerDB
+## SavedVariablesPerCharacter: TransmogOutfitManagerDB, TransmogOutfitManagerOptions
 ## LoadOnDemand: 1
 ## LoadWith: Blizzard_Collections
 

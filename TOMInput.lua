@@ -56,6 +56,12 @@ local function saveOutfitButtonOnClick(self, button, down)
 	TOM.Display.Redraw()
 end
 
+local function shareOutfitsButtonOnClick(self, button, down)
+	if button ~= "LeftButton" then return end
+	TOM.Options.shareOutfits = TOM.Input.ShareOutfitsButton:GetChecked()
+	TOM.Core.Refresh()
+end
+
 
 local function onDropdownMenuItemClicked(self, arg1, arg2)
 	if arg1 == DROPDOWN_TOGGLEFAVORITE then
@@ -92,6 +98,7 @@ local function initDropdownMenu(frame, level, menuList)
 end
 
 function TOM.Input.Init()
+	TOM.Input.ShareOutfitsButton:SetChecked(TOM.Options.shareOutfits)
 	UIDropDownMenu_Initialize(TOM.Input.OutfitDropdown, initDropdownMenu, "MENU")
 end
 
@@ -100,3 +107,4 @@ TOM.Input.OutfitNameBox:SetScript("OnTextChanged", outfitNameInputOnTextChanged)
 TOM.Input.SaveOutfitButton:SetScript("OnClick", saveOutfitButtonOnClick)
 TOM.Input.PreviousPageButton:SetScript("OnClick", previousPageButtonOnClick)
 TOM.Input.NextPageButton:SetScript("OnClick", nextPageButtonOnClick)
+TOM.Input.ShareOutfitsButton:SetScript("OnClick", shareOutfitsButtonOnClick)
