@@ -47,6 +47,10 @@ local function saveOutfitButtonOnClick(self, button, down)
 		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
 		slotData[slotName] = {base=baseSourceID, applied=appliedSourceID, pending=pendingSourceID, hasUndo=hasUndo}
 	end
+	TOM.Core.SaveOutfit(outfitName, slotData)
+	--need to rethink overwrite logic
+	--possibly pass outfit name and metadata, then fetch slotdata again
+	--[[
 	if TOM.Core.GetOutfitByName(outfitName) > 0 then
 		StaticPopupDialogs["TOM_OverwriteOutfit"].text = "Overwrite \'" .. outfitName .. "\'?"
 		local dialog = StaticPopup_Show("TOM_OverwriteOutfit")
@@ -57,6 +61,7 @@ local function saveOutfitButtonOnClick(self, button, down)
 	else
 		TOM.Core.SaveOutfit(outfitName, slotData)
 	end
+	]]--
 	TOM.Display.Redraw()
 end
 
@@ -69,21 +74,22 @@ end
 
 local function onDropdownMenuItemClicked(self, arg1, arg2)
 	if arg1 == DROPDOWN_TOGGLEFAVORITE then
-		--local outfitName = TOM.Core.GetOutfitNameByFrame(TOM.activeModelFrame)
-		--TOM.Core.ToggleFavorite(outfitName)
-		--TOM.activeModelFrame.FavIcon:SetShown(TOM.Core.IsFavorited(outfitName))
+		local res = TOM.Core.ToggleFavorite(TOM.Display.selectedModelFrame)
+		if res ~= nil then
+			TOM.Display.selectedModelFrame.FavIcon:SetShown(res)
+		end
 	elseif arg1 == DROPDOWN_RENAME then
 		local dialog = StaticPopup_Show("TOM_RenameOutfit")
 		if dialog then
 			--this feels a bit risky
-			--dialog.data = TOM.Core.GetOutfitNameByFrame(TOM.activeModelFrame)
+			--dialog.data = ???
 		end
 	elseif arg1 == DROPDOWN_DELETE then
-		local outfitName = TOM.activeModelFrame.OutfitName:GetText()
+		local outfitName = TOM.Core.GetOutfitByFrame(TOM.Display.selectedModelFrame).name
 		StaticPopupDialogs["TOM_DeleteOutfit"].text = "Delete outfit \'" .. outfitName .. "\'?"
 		local dialog = StaticPopup_Show("TOM_DeleteOutfit")
 		if dialog then
-			dialog.data = outfitName
+			dialog.data = TOM.Display.selectedModelFrame
 		end
 	end
 end

@@ -34,9 +34,8 @@ TOM.Input.OutfitDropdown = CreateFrame("Frame", "TransmogOutfitManagerOutfitDrop
 
 local function renameDialogOnAccept(self, oldName)
 	local newName = self.editBox:GetText()
-	if TOM.Core.RenameOutfit(oldName, newName) then
-		--RenameOutfit returns index so could fetch the new name instead of using editbox
-		TOM.activeModelFrame.OutfitName:SetText(newName)
+	if TOM.Core.RenameOutfit(TOM.Display.selectedModelFrame, newName) then
+		TOM.Display.selectedModelFrame.OutfitName:SetText(newName)
 	end
 end
 
@@ -51,10 +50,12 @@ StaticPopupDialogs["TOM_RenameOutfit"] = {
 	end,
 	EditBoxOnTextChanged = function(self, data)
 		if TOM.Core.IsValidName(self:GetText()) then
-			self:GetParent().button1:SetEnabled(TOM.Core.GetOutfitByName(self:GetText()) == 0)
+			self:GetParent().button1:SetEnabled(TOM.Core.GetOutfitByFrame(TOM.Display.selectedModelFrame).name ~= self:GetText())
 		end
 	end,
 	OnAccept = renameDialogOnAccept,
+	OnShow = TOM.Display.Lock,
+	OnHide = TOM.Display.Unlock,
 	timeout = 0,
 	whileDead = false,
 	hideOnEscape = true,
@@ -71,6 +72,8 @@ StaticPopupDialogs["TOM_DeleteOutfit"] = {
 	button1 = "Yes",
 	button2 = "No",
 	OnAccept = deleteDialogOnAccept,
+	OnShow = TOM.Display.Lock,
+	OnHide = TOM.Display.Unlock,
 	timeout = 0,
 	whileDead = false,
 	hideOnEscape = true,

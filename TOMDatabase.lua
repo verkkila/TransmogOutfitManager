@@ -68,8 +68,8 @@ local function migrateOutfits()
         if not outfitInAccountDB(outfit) then
             count = count + 1
             tinsert(TOM.DB._sources.accDB, {name = outfit.name, data = outfit.data, metadata = getDefaultMetadata()})
-            --tremove(TOM.DB._sources.charDB, index)
         end
+        tremove(TOM.DB._sources.charDB, index)
     end
     return count
 end
@@ -78,7 +78,7 @@ function TOM.DB.Init()
     TOM.DB._sources = {}
     TOM.DB._sources.charDB = TransmogOutfitManagerDB
     TOM.DB._sources.accDB = TransmogOutfitManagerDBAccount
-    local migrated = migrateOutfits()
+    migrateOutfits()
     TOM.DB.CountOutfits()
 end
 
@@ -107,24 +107,47 @@ function TOM.DB.GetAllOutfits()
             end
 end
 
-function TOM.DB.GetOutfitMetadata(dbIndex, key)
-    local outfit = TOM.DB.GetOutfitByName(outfitName)
+function isValidKey(key)
+    for k, v in pairs(TOM.DB.Keys) do
+        if v == key then return true end
+    end
+    return false
+end
+
+function TOM.DB.GetOutfitMetadata(index, key)
+    if not isValidKey(key) then return nil end
+    local outfit = TOM.DB._sources.accDB[index]
     if outfit and outfit.metadata then
-        return outfit.metadata[key]
+        if key == TOM.DB.Keys["OWNER_NAME"] or
+           key == TOM.DB.Keys["OWNER_REALM"] or
+           key == TOM.DB.Keys["OWNER_CLASS"] then
+            return outfit.metadata[TOM.DB.Keys["OWNER"]][key]
+        else
+            return outfit.metadata[key]
+        end
     end
 end
 
-function TOM.DB.SetOutfitMetadata(dbIndex, key, value)
-    local outfit = TOM.DB.GetOutfitByName(outfitName)
+--should also do type checking here, i.e. dont allow setting modifiedAt as string etc.
+function TOM.DB.SetOutfitMetadata(index, key, value)
+    if not isValidKey(key) then return false end
+    local outfit = TOM.DB._sources.accDB[index]
     if outfit and outfit.metadata then
-        outfit.metadata[key] = value
+        if key == TOM.DB.Keys["OWNER_NAME"] or
+           key == TOM.DB.Keys["OWNER_REALM"] or
+           key == TOM.DB.Keys["OWNER_CLASS"] then
+            outfit.metadata[TOM.DB.Keys["OWNER"]][key] = value
+        else
+            outfit.metadata[key] = value
+        end
+        return true
     end
+    return false
 end
 
 function TOM.DB.SaveOutfit(outfitName, outfitData)
     local outfit = {name = outfitName, data = outfitData, metadata = getDefaultMetadata()}
     if validateOutfit(outfit) then
-	    --table.insert(TOM.DB._sources.accDB, outfit)
         numOutfits = numOutfits + 1
         TOM.DB._sources.accDB[numOutfits] = outfit
         return numOutfits
@@ -132,32 +155,17 @@ function TOM.DB.SaveOutfit(outfitName, outfitData)
     return 0
 end
 
-function TOM.DB.RenameOutfit(oldName, newName)
-    local outfitIndex = TOM.DB.OutfitExistsByName(oldName)
-    if outfitIndex > 0 then
-        TOM.DB._sources.accDB[outfitIndex].name = newName
-    end
-    return outfitIndex
-end
-
---is there a use case for returning the new count?
-function TOM.DB.DeleteOutfitByName(outfitName)
-    local outfitIndex = TOM.DB.OutfitExistsByName(outfitName)
-    if outfitIndex > 0 then
-        table.remove(TOM.DB._sources.accDB, outfitIndex)
-        numOutfits = max(0, numOutfits - 1)
+function TOM.DB.RenameOutfit(index, newName)
+    local outfit = TOM.DB._sources.accDB[index]
+    if outfit then
+        outfit.name = newName
         return true
     end
     return false
 end
 
-function TOM.DB.OverwriteOutfit(outfitName, newData)
-    --data validation, return values
-    local outfitIndex = TOM.DB.OutfitExistsByName(outfitName)
-    if outfitIndex > 0 then
-        TOM.DB._sources.accDB[outfitIndex].data = newData
-    end
-    return outfitIndex
+function TOM.DB.DeleteOutfit(index)
+    tremove(TOM.DB._sources.accDB, index)
 end
 
 function TOM.DB.NumSavedOutfits()
@@ -166,13 +174,6 @@ function TOM.DB.NumSavedOutfits()
         return numOutfits
     end
     return TOM.CountOutfits()
-end
-
-function TOM.DB.OutfitExistsByName(name)
-	for index, outfit in ipairs(TOM.DB._sources.accDB) do
-		if outfit.name == name then return index end
-	end
-	return 0
 end
 
 function TOM.DB.CountOutfits()

@@ -5,6 +5,7 @@ TOM.Display.ModelFrames = {}
 TOM.Display.Backdrops = {}
 TOM.Display.ROWS = 2
 TOM.Display.COLS = 4
+TOM.Display._locked = false
 --this is not ideal
 TOM.Display.Backdrops["default"] = {
 	bgFile="Interface/Tooltips/UI-Tooltip-Background",
@@ -85,10 +86,10 @@ end
 
 --needs rework
 local function modelFrameOnMouseDown(self, button)
+	if TOM.Display._locked then return end
 	TOM.Display.selectedModelFrame = GetMouseFocus()
 	if button == "LeftButton" then
 		local outfit = TOM.Core.GetOutfitByFrame(TOM.Display.selectedModelFrame)
-		print("selectedOutfit: ", outfit)
 		if not outfit then return end
 		local transmogInfo = tryCreateTransmogInfo(outfit)
 		if transmogInfo then

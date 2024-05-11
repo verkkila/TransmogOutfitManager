@@ -53,6 +53,15 @@ function TOM.Display.NumPages()
 	return math.max(1, math.ceil(TOM.Core.GetNumOutfits() / 8))
 end
 
+--prevent selecting other outfits while there's an open staticpopup (rename,delete)
+function TOM.Display.Lock()
+	TOM.Display._locked = true
+end
+
+function TOM.Display.Unlock()
+	TOM.Display._locked = false
+end
+
 function TOM.Display.GetModelFrame(row, column)
 	if row < 1 or row > 2 then return nil end
 	if column < 1 or column > 4 then return nil end
@@ -69,7 +78,6 @@ function TOM.Display.SetModelBorder(row, column, borderType)
 end
 
 local function doBorders(outfit, row, column)
-	--print("doBorders: ", outfit.name, row, column)
 	if TOM.Core.IsOutfitApplied(outfit) then
 		TOM.Display.SetModelBorder(row, column, BORDERTYPE_APPLIED)
 	elseif TOM.Core.IsOutfitSelected(outfit) then
@@ -90,8 +98,6 @@ function TOM.Display.RedrawBorders()
 	end
 end
 
---TODO split this function into several smaller ones
---fix layer violations
 function TOM.Display.Redraw(self)
 	TOM.Display.UpdatePageText()
 	TOM.Display.UpdatePageButtons()
@@ -114,7 +120,7 @@ function TOM.Display.Redraw(self)
 						modelFrame:TryOn(transmogId)
 					end
 				end
-				--modelFrame.FavIcon:SetShown(TOM.Core.IsFavorited(outfit.name))
+				modelFrame.FavIcon:SetShown(TOM.Core.IsFavorited(modelFrame))
 			else
 				modelFrame:Hide()
 			end
@@ -133,6 +139,7 @@ local function containerOnEvent(self, event, ...)
 	elseif event == "TRANSMOGRIFY_SUCCESS" then
 		TOM.Display.Redraw()
 	elseif event == "TRANSMOGRIFY_UPDATE" then
+		--causes tons of redraw calls when a set is selected, optimize this in the future
 		TOM.Display.RedrawBorders()
 		TOM.Display.UpdateSaveButton()
 	end
@@ -150,4 +157,3 @@ TOM.Display.Container:SetScript("OnHide", function(self) -- prevent "sticky" fra
 	self:StopMovingOrSizing()
 end)
 TOM.Display.Container:Hide()
---Context menu frame must be named, TODO: add check to make sure frame doesn't already exist

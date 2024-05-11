@@ -59,7 +59,6 @@ local function buildCache()
 			cache[cacheSize] = {name = outfit.name, metadata = outfit.metadata, dbIndex = i}
 		end
 	end
-	print("cacheSize = ", cacheSize)
 end
 
 function TOM.Core.Init()
@@ -81,17 +80,40 @@ function TOM.Core.SaveOutfit(outfitName, outfitData)
 	end
 end
 
---this shouldn't rely on the old name
-function TOM.Core.RenameOutfit(oldName, newName)
-	return 
+function TOM.Core.RenameOutfit(modelFrame, newName)
+	local outfit, cacheIndex = TOM.Core.GetOutfitByFrame(modelFrame)
+	local cacheEntry = cache[cacheIndex]
+	if outfit and cacheEntry then
+		if TOM.DB.RenameOutfit(cacheEntry.dbIndex, newName) then
+			cacheEntry.name = newName
+			return true
+		end
+	end
+	return false
 end
 
 function TOM.Core.OverwriteOutfit(outfitName, outfitData)
 	return 
 end
 
-function TOM.Core.DeleteOutfit(outfitName)
-	return 
+function TOM.Core.DeleteOutfit(modelFrame)
+	local outfit, cacheIndex = TOM.Core.GetOutfitByFrame(modelFrame)
+	local cacheEntry = cache[cacheIndex]
+	if cacheEntry.name == outfit.name and cacheEntry.metadata == outfit.metadata then
+		if TOM.DB.DeleteOutfit(cacheEntry.dbIndex) then
+			tremove(cache, cacheIndex)
+			cacheSize = cacheSize - 1
+		end
+	end
+	--[[
+	for cacheIndex, cacheEntry in ipairs(cache) do
+		if cacheEntry.name == outfit.name and cacheEntry.metadata == outfit.metadata then
+			TOM.DB.DeleteOutfit(cacheEntry.dbIndex)
+			tremove(cache, cacheIndex)
+			cacheSize = cacheSize - 1
+		end
+	end
+	]]--
 end
 
 function TOM.Core.GetNumOutfits()
@@ -101,7 +123,14 @@ end
 function TOM.Core.GetOutfit(page, row, column)
 	local cacheEntry = cache[prctoindex(page, row, column)]
 	if cacheEntry then
-		return TOM.DB.GetOutfit(cacheEntry.dbIndex), prctoindex(page, row, column)
+		return TOM.DB.GetOutfit(cacheEntry.dbIndex)
+	end
+end
+
+function TOM.Core.GetCacheEntry(index)
+	local cacheEntry = cache[index]
+	if cacheEntry then
+		return cacheEntry
 	end
 end
 
@@ -109,13 +138,9 @@ function TOM.Core.GetOutfitByFrame(modelFrame)
 	for index, frame in ipairs(currentView) do
 		if modelFrame == frame then
 			local cacheIndex = ((TOM.Display.GetCurrentPage() - 1) * 8) + index
-			return TOM.DB.GetOutfit(cache[cacheIndex].dbIndex)
+			return TOM.DB.GetOutfit(cache[cacheIndex].dbIndex), cacheIndex
 		end
 	end
-end
-
-function TOM.Core.GetOutfitByName(outfitName)
-	return TOM.DB.OutfitExistsByName(outfitName)
 end
 
 function TOM.Core.ResetDisplay()
@@ -124,34 +149,41 @@ end
 
 function TOM.Core.SetModelFrame(modelFrame, row, column)
 	currentView[rctoindex(row, column)] = modelFrame
-	print("currentView = ", rctoindex(row, column), currentView[rctoindex(row, column)])
 end
 
 --returns "CharName-RealmName" representation
-function getFullPlayerName(myName, myRealm)
-	return strjoin("-", myName, myRealm)
+function getFullPlayerName(name, realm)
+	return strjoin("-", name, realm)
 end
 
-function TOM.Core.IsFavorited(outfitName)
-	local myName, myRealm = GetPlayerInfo()
-	if TOM.DB.GetOutfitByName(outfitName) then
-		local favoritedOn = TOM.DB.GetOutfitMetadata(outfitName, TOM.DB.Keys["FAVORITED_ON"])
-		return tContains(favoritedOn, getFullPlayerName(myName, myRealm))
-	end
-	return false
-end
-
-function TOM.Core.ToggleFavorite(outfitName)
-	local outfit = TOM.DB.GetOutfitByName(outfitName)
-	if outfit then
-		local favoritedOn = TOM.DB.GetOutfitMetadata(outfitName, TOM.DB.Keys["FAVORITED_ON"])
-		
+function TOM.Core.IsFavorited(modelFrame)
+	local fullName = getFullPlayerName(UnitName("player"), GetRealmName())
+	local outfit, cacheIndex = TOM.Core.GetOutfitByFrame(modelFrame)
+	local cacheEntry = cache[cacheIndex]
+	if outfit and cacheEntry then
+		local favoritedOn = TOM.DB.GetOutfitMetadata(cacheEntry.dbIndex, TOM.DB.Keys["FAVORITED_ON"])
+		for _, name in pairs(favoritedOn) do
+			if name == fullName then return true end
+		end
+		return false
 	end
 end
 
-function TOM.Core.GetOutfitNameByFrame(previewModelFrame)
-	for name, frame in pairs(currentView) do
-		if frame == previewModelFrame then return name end
+--returns true when set, false when unset
+function TOM.Core.ToggleFavorite(modelFrame)
+	local fullName = getFullPlayerName(UnitName("player"), GetRealmName())
+	local outfit, cacheIndex = TOM.Core.GetOutfitByFrame(modelFrame)
+	local cacheEntry = cache[cacheIndex]
+	if outfit and cacheEntry then
+		local favoritedOn = TOM.DB.GetOutfitMetadata(cacheEntry.dbIndex, TOM.DB.Keys["FAVORITED_ON"])
+		for index, name in pairs(favoritedOn) do
+			if name == fullName then
+				tremove(favoritedOn, index)
+				return false
+			end
+		end
+		tinsert(favoritedOn, fullName)
+		return true
 	end
 end
 
