@@ -47,12 +47,10 @@ function getDefaultMetadata()
     return m
 end
 
-
-
 local function migrateOutfits()
     local count = 0
     for index, outfit in ipairs(TOM.DB._sources.charDB) do
-        if not outfitInAccountDB(outfit) then
+        if not TOM.DB.OutfitExists(outfit.name) then
             count = count + 1
             tinsert(TOM.DB._sources.accDB, {name = outfit.name, data = outfit.data, metadata = getDefaultMetadata()})
         end
