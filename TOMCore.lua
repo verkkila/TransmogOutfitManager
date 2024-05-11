@@ -103,9 +103,11 @@ end
 function TOM.Core.SaveOutfit(outfitName, outfitData)
 	local index = TOM.DB.SaveOutfit(outfitName, outfitData)
 	if index > 0 then
-		cacheSize = cacheSize + 1
 		local outfit = TOM.DB.GetOutfit(index)
-		cache[cacheSize] = {name = outfit.name, metadata = outfit.metadata, dbIndex = index}
+		--cache[cacheSize] = {name = outfit.name, metadata = outfit.metadata, dbIndex = index}
+		tinsert(cache, {name = outfit.name, metadata = outfit.metadata, dbIndex = index})
+		cacheSize = cacheSize + 1
+		print("TOM.Core.SaveOutfit numOutfits = ", index, " cacheSize = ", cacheSize)
 	end
 end
 

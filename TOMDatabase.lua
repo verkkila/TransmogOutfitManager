@@ -47,13 +47,13 @@ function getDefaultMetadata()
     return m
 end
 
-local function outfitInAccountDB(charOutfit)
+local function outfitInAccountDB(outfit)
     local myName = UnitName("player")
     local myRealm = GetRealmName()
     local myClass = select(2, UnitClass("player"))
 
     for _, accOutfit in pairs(TOM.DB._sources.accDB) do
-        if accOutfit and accOutfit.metadata and accOutfit.name == charOutfit.name then
+        if accOutfit and accOutfit.metadata and accOutfit.name == outfit.name then
             return accOutfit.metadata[TOM.DB.Keys["OWNER"]][TOM.DB.Keys["OWNER_NAME"]] == myName and
                    accOutfit.metadata[TOM.DB.Keys["OWNER"]][TOM.DB.Keys["OWNER_REALM"]] == myRealm and
                    accOutfit.metadata[TOM.DB.Keys["OWNER"]][TOM.DB.Keys["OWNER_CLASS"]] == myClass
@@ -148,9 +148,10 @@ end
 
 function TOM.DB.SaveOutfit(outfitName, outfitData)
     local outfit = {name = outfitName, data = outfitData, metadata = getDefaultMetadata()}
-    if validateOutfit(outfit) then
+    if not outfitInAccountDB(outfit) then
+        tinsert(TOM.DB._sources.accDB, outfit)
         numOutfits = numOutfits + 1
-        TOM.DB._sources.accDB[numOutfits] = outfit
+        print("table.getn(accDB) = ", table.getn(TOM.DB._sources.accDB), " numOutfits = ", numOutfits)
         return numOutfits
     end
     return 0
@@ -167,6 +168,10 @@ end
 
 function TOM.DB.DeleteOutfit(index)
     local res = tremove(TOM.DB._sources.accDB, index)
+    if res then
+        numOutfits = numOutfits - 1
+        print(table.getn(TOM.DB._sources.accDB), numOutfits)
+    end
     return res ~= nil
 end
 
@@ -181,9 +186,8 @@ end
 function TOM.DB.CountOutfits()
     numOutfits = 0
     for _, outfit in pairs(TOM.DB._sources.accDB) do
-        if validateOutfit(outfit) then
-            numOutfits = numOutfits + 1
-        end
+        --if validate then increment count otherwise tremove it
+        numOutfits = numOutfits + 1
     end
     return numOutfits
 end
