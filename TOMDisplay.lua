@@ -68,19 +68,23 @@ function TOM.Display.SetModelBorder(row, column, borderType)
 	TOM.Display.ModelFrames[rctoindex(row, column)]:SetBackdropColor(0, 0, 0, 1)
 end
 
+local function doBorders(outfit, row, column)
+	if TOM.Core.IsOutfitApplied(outfit) then
+		TOM.Display.SetModelBorder(row, column, BORDERTYPE_APPLIED)
+	elseif TOM.Core.IsOutfitSelected(outfit) then
+		TOM.Display.SetModelBorder(row, column, BORDERTYPE_SELECTED)
+	else
+		TOM.Display.SetModelBorder(row, column)
+	end
+end
+
 function TOM.Display.RedrawBorders()
 	local page = TOM.Display.GetCurrentPage()
 	for row = 1, 2 do
 		for column = 1, 4 do
-			if TOM.Core.OutfitExists(page, row, column) then
-				local outfit = TOM.Core.GetOutfit(page, row, column)
-				if TOM.Core.IsOutfitApplied(outfit) then
-					TOM.Display.SetModelBorder(row, column, BORDERTYPE_APPLIED)
-				elseif TOM.Core.IsOutfitSelected(outfit) then
-					TOM.Display.SetModelBorder(row, column, BORDERTYPE_SELECTED)
-				else
-					TOM.Display.SetModelBorder(row, column)
-				end
+			local outfit = TOM.Core.GetOutfit(page, row, column)
+			if outfit then
+				doBorders(outfit, row, column)
 			end
 		end
 	end
@@ -95,18 +99,11 @@ function TOM.Display.Redraw(self)
 	TOM.Core.ResetDisplay()
 	for row = 1, 2 do
 		for column = 1, 4 do
-			if TOM.Core.OutfitExists(TOM.Display.GetCurrentPage(), row, column) then
-				local outfit = TOM.Core.GetOutfit(TOM.Display.GetCurrentPage(), row, column)
-				--loosely keep track of what outfit is where
-				TOM.Core.DisplayOutfit(outfit.name, page, row, column)
-				if TOM.Core.IsOutfitApplied(outfit) then
-					TOM.Display.SetModelBorder(row, column, BORDERTYPE_APPLIED)
-				elseif TOM.Core.IsOutfitSelected(outfit) then
-					TOM.Display.SetModelBorder(row, column, BORDERTYPE_SELECTED)
-				else
-					TOM.Display.SetModelBorder(row, column)
-				end
-				local modelFrame = TOM.Display.GetModelFrame(row, column)
+			local modelFrame = TOM.Display.GetModelFrame(row, column)
+			local outfit = TOM.Core.GetOutfit(TOM.Display.GetCurrentPage(), row, column)
+			if outfit then
+				TOM.Core.DisplayOutfit(outfit.name, row, column)
+				doBorders(outfit, row, column)
 				modelFrame:Show()
 				modelFrame.OutfitName:SetText(outfit.name)
 				modelFrame.OutfitName:Show()

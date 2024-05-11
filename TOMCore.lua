@@ -79,27 +79,32 @@ function TOM.Core.ResetDisplay()
 	TOM.Core.currentView = {}
 end
 
-function TOM.Core.DisplayOutfit(outfitName, page, row, column)
+function TOM.Core.DisplayOutfit(outfitName, row, column)
 	TOM.Core.currentView[outfitName] = TOM.Display.GetModelFrame(row, column)
 end
 
+--needs to check name realm and class to be unique
 function TOM.Core.IsFavorited(outfitName)
-	if TOM.DB.GetOutfitByName(outfitName) and TOM.DB.OutfitHasMetadata(outfitName) then
-		return TOM.DB.GetOutfitMetadata(outfitName, "favorited")
+	local myName = UnitName("player")
+	if TOM.DB.GetOutfitByName(outfitName) then
+		local favoritedOn = TOM.DB.GetOutfitMetadata(outfitName, TOM.DB.Keys["FAVORITED_ON"])
+		return tContains(favoritedOn, myName)
 	end
-	return nil
+	return false
 end
 
 function TOM.Core.ToggleFavorite(outfitName)
+	local myName = UnitName("player")
 	local outfit = TOM.DB.GetOutfitByName(outfitName)
 	if outfit then
-		if TOM.DB.OutfitHasMetadata(outfitName) then
-			local favorited = TOM.DB.GetOutfitMetadata(outfitName, "favorited")
-			TOM.DB.SetOutfitMetadata(outfitName, "favorited", not favorited)
+		local favoritedOn = TOM.DB.GetOutfitMetadata(outfitName, TOM.DB.Keys["FAVORITED_ON"])
+		--might be a slight layer violation
+		if tContains(favoritedOn, myName) then
+			for index, name in ipairs(favoritedOn) do
+				if name == myName then tremove(favoritedOn, index) end
+			end
 		else
-			--do this manually for now
-			TOM.DB.CreateMetadataForOutfit(outfitName)
-			TOM.DB.SetOutfitMetadata(outfitName, "favorited", true)
+			tinsert(favoritedOn, myName)
 		end
 	end
 end
