@@ -114,12 +114,6 @@ function TOM.Core.GetOutfitByFrame(modelFrame)
 	end
 end
 
-function TOM.Core.GetOutfitData(cacheIndex)
-	if TOM.DB.OutfitExists(cacheIndex) then
-		return TOM.DB.GetOutfit(cacheIndex).data
-	end
-end
-
 function TOM.Core.GetOutfitByName(outfitName)
 	return TOM.DB.OutfitExistsByName(outfitName)
 end
