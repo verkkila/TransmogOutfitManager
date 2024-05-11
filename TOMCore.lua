@@ -13,7 +13,7 @@ local currentView = {}
 local cache = {}
 local cacheSize = 0
 
-TOM.Core.SLOTID_TO_NAME = {
+local SLOTID_TO_NAME = {
 	[1] = "HEADSLOT",
 	[3] = "SHOULDERSLOT",
 	[4] = "SHIRTSLOT",
@@ -99,15 +99,27 @@ function TOM.Core.GetPlayerInfo()
 	return UnitName("player"), GetRealmName(), select(2, UnitClass("player"))
 end
 
+function TOM.Core.OutfitExists(outfitName, charName, charRealm, charClass)
+	local res = TOM.DB.OutfitExists(outfitName, charName, charRealm, charClass)
+	return res
+end
+
+function TOM.Core.GenerateSlotData()
+	local slotData = {}
+	for slotId, slotName in pairs(SLOTID_TO_NAME) do
+		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
+		slotData[slotName] = {base=baseSourceID, applied=appliedSourceID, pending=pendingSourceID, hasUndo=hasUndo}
+	end
+	return slotData
+end
+
 --by definition we cannot save outfits that are not applicable to our character so we can directly cache it
 function TOM.Core.SaveOutfit(outfitName, outfitData)
 	local index = TOM.DB.SaveOutfit(outfitName, outfitData)
 	if index > 0 then
 		local outfit = TOM.DB.GetOutfit(index)
-		--cache[cacheSize] = {name = outfit.name, metadata = outfit.metadata, dbIndex = index}
 		tinsert(cache, {name = outfit.name, metadata = outfit.metadata, dbIndex = index})
 		cacheSize = cacheSize + 1
-		print("TOM.Core.SaveOutfit numOutfits = ", index, " cacheSize = ", cacheSize)
 	end
 end
 
@@ -124,18 +136,19 @@ function TOM.Core.RenameOutfit(modelFrame, newName)
 	return false
 end
 
-function TOM.Core.OverwriteOutfit(outfitName, outfitData)
-	return 
+function TOM.Core.OverwriteOutfit(outfitInfo)
+	if not outfitInfo.name or not outfitInfo.charName or not outfitInfo.charRealm or not outfitInfo.charClass then
+		return false
+	end
+	local res = TOM.DB.OverwriteOutfit(outfitInfo.name, outfitInfo.charName, outfitInfo.charRealm, outfitInfo.charClass, TOM.Core.GenerateSlotData())
+	return res
 end
 
 function TOM.Core.DeleteOutfit(modelFrame)
 	local outfit, cacheIndex = TOM.Core.GetOutfitByFrame(modelFrame)
-	--print("TOM.Core.DeleteOutfit ", modelFrame, outfit.name, cacheIndex)
 	local cacheEntry = cache[cacheIndex]
 	if cacheEntry.name == outfit.name and cacheEntry.metadata == outfit.metadata then
-		--print("TOM.Core.DeleteOutfit cache check passed dbIndex = ", cacheEntry.dbIndex)
 		if TOM.DB.DeleteOutfit(cacheEntry.dbIndex) then
-			--print("TOM.DB.DeleteOutfit returned true")
 			tremove(cache, cacheIndex)
 			for _, entry in pairs(cache) do
 				if entry.dbIndex > cacheEntry.dbIndex then entry.dbIndex = entry.dbIndex - 1 end
@@ -231,7 +244,7 @@ end
 
 --TODO: fix these
 function TOM.Core.IsOutfitApplied(outfit)
-	for slotId, slotName in pairs(TOM.Core.SLOTID_TO_NAME) do
+	for slotId, slotName in pairs(SLOTID_TO_NAME) do
 		if slotName ~= "TABARDSLOT" and slotName ~= "SHIRTSLOT" then
 			local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
 			local equippedIdForSlot = getVisibleSlotId({applied=appliedSourceID, pending=0, base=baseSourceID, hasUndo=hasUndo})
@@ -245,7 +258,7 @@ function TOM.Core.IsOutfitApplied(outfit)
 end
 
 function TOM.Core.IsOutfitSelected(outfit)
-	for slotId, slotName in pairs(TOM.Core.SLOTID_TO_NAME) do
+	for slotId, slotName in pairs(SLOTID_TO_NAME) do
 		if slotName ~= "TABARDSLOT" and slotName ~= "SHIRTSLOT" then
 			local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
 			local equippedIdForSlot = TOM.Core.GetTransmogId({applied=appliedSourceID, pending=pendingSourceID, base=baseSourceID, hasUndo=hasUndo})

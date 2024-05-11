@@ -55,12 +55,10 @@ end
 
 --prevent selecting other outfits while there's an open staticpopup (rename,delete)
 function TOM.Display.Lock()
-	--print("TOM.Display.Lock()")
 	TOM.Display._locked = true
 end
 
 function TOM.Display.Unlock()
-	--print("TOM.Display.Unlock()")
 	TOM.Display._locked = false
 end
 

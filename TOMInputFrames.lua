@@ -32,7 +32,7 @@ TOM.Input.NextPageButton:SetEnabled(false)
 
 TOM.Input.OutfitDropdown = CreateFrame("Frame", "TransmogOutfitManagerOutfitDropdown", TOM.Display.Container, "UIDropDownMenuTemplate")
 
-local function renameDialogOnAccept(self, oldName)
+local function renameDialogOnAccept(self)
 	local newName = self.editBox:GetText()
 	if TOM.Core.RenameOutfit(TOM.Display.selectedModelFrame, newName) then
 		TOM.Display.selectedModelFrame.OutfitName:SetText(newName)
@@ -80,8 +80,8 @@ StaticPopupDialogs["TOM_DeleteOutfit"] = {
 	preferredIndex = 3
 }
 
-local function overwriteDialogOnAccept(self, name, data)
-	TOM.Core.OverwriteOutfit(name, data)
+local function overwriteDialogOnAccept(self, outfitInfo)
+	TOM.Core.OverwriteOutfit(outfitInfo)
 	TOM.Display.Redraw()
 end
 

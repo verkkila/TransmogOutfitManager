@@ -42,35 +42,20 @@ end
 local function saveOutfitButtonOnClick(self, button, down)
 	local outfitName = TOM.Input.OutfitNameBox:GetText()
 	if outfitName == "" then return end
-	local slotData = {}
-	for slotId, slotName in pairs(TOM.Core.SLOTID_TO_NAME) do
-		local baseSourceID, _, appliedSourceID, _, pendingSourceID, _, hasUndo, _, _ = C_Transmog.GetSlotVisualInfo({slotID = slotId, type = 0, modification = 0})
-		slotData[slotName] = {base=baseSourceID, applied=appliedSourceID, pending=pendingSourceID, hasUndo=hasUndo}
-	end
-	TOM.Core.SaveOutfit(outfitName, slotData)
-	--need to rethink overwrite logic
-	--possibly pass outfit name and metadata, then fetch slotdata again
-	--[[
-	if TOM.Core.GetOutfitByName(outfitName) > 0 then
+	local myName, myRealm, myClass = TOM.Core.GetPlayerInfo()
+	if not TOM.Core.OutfitExists(outfitName, myName, myRealm, myClass) then
+		local slotData = TOM.Core.GenerateSlotData()
+		TOM.Core.SaveOutfit(outfitName, slotData)
+	else
 		StaticPopupDialogs["TOM_OverwriteOutfit"].text = "Overwrite \'" .. outfitName .. "\'?"
 		local dialog = StaticPopup_Show("TOM_OverwriteOutfit")
 		if dialog then
-			dialog.data = outfitName
-			dialog.data2 = slotData
+			dialog.data = {name = outfitName, charName = myName, charRealm = myRealm, charClass = myClass}
 		end
-	else
-		TOM.Core.SaveOutfit(outfitName, slotData)
 	end
-	]]--
 	TOM.Display.Redraw()
 end
 
---[[
-local function getFavoritedText(outfitName)
-	if TOM.Core.IsOutfitFavorited(outfitName) then return "Remove" end
-	return "Set"
-end
-]]--
 
 local function onDropdownMenuItemClicked(self, arg1, arg2)
 	if arg1 == DROPDOWN_TOGGLEFAVORITE then
@@ -82,8 +67,7 @@ local function onDropdownMenuItemClicked(self, arg1, arg2)
 	elseif arg1 == DROPDOWN_RENAME then
 		local dialog = StaticPopup_Show("TOM_RenameOutfit")
 		if dialog then
-			--this feels a bit risky
-			--dialog.data = ???
+			--is this necessary anymore?
 		end
 	elseif arg1 == DROPDOWN_DELETE then
 		local outfitName = TOM.Core.GetOutfitByFrame(TOM.Display.selectedModelFrame).name

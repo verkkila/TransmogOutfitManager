@@ -47,20 +47,7 @@ function getDefaultMetadata()
     return m
 end
 
-local function outfitInAccountDB(outfit)
-    local myName = UnitName("player")
-    local myRealm = GetRealmName()
-    local myClass = select(2, UnitClass("player"))
 
-    for _, accOutfit in pairs(TOM.DB._sources.accDB) do
-        if accOutfit and accOutfit.metadata and accOutfit.name == outfit.name then
-            return accOutfit.metadata[TOM.DB.Keys["OWNER"]][TOM.DB.Keys["OWNER_NAME"]] == myName and
-                   accOutfit.metadata[TOM.DB.Keys["OWNER"]][TOM.DB.Keys["OWNER_REALM"]] == myRealm and
-                   accOutfit.metadata[TOM.DB.Keys["OWNER"]][TOM.DB.Keys["OWNER_CLASS"]] == myClass
-        end
-    end
-    return false
-end
 
 local function migrateOutfits()
     local count = 0
@@ -83,9 +70,19 @@ function TOM.DB.Init()
     TOM.DB.CountOutfits()
 end
 
-function TOM.DB.OutfitExists(index)
-    --additional validation, possibly an enum result
-    return TOM.DB._sources.accDB[index] ~= nil
+function TOM.DB.OutfitExists(outfitName, charName, charRealm, charClass)
+    local name = charName or UnitName("player")
+    local realm = charRealm or GetRealmName()
+    local class = charClass or select(2, UnitClass("player"))
+
+    for _, accOutfit in pairs(TOM.DB._sources.accDB) do
+        if accOutfit and accOutfit.metadata and accOutfit.name == outfitName then
+            return accOutfit.metadata[TOM.DB.Keys["OWNER"]][TOM.DB.Keys["OWNER_NAME"]] == name and
+                   accOutfit.metadata[TOM.DB.Keys["OWNER"]][TOM.DB.Keys["OWNER_REALM"]] == realm and
+                   accOutfit.metadata[TOM.DB.Keys["OWNER"]][TOM.DB.Keys["OWNER_CLASS"]] == class
+        end
+    end
+    return false
 end
 
 function TOM.DB.GetOutfit(index)
@@ -147,14 +144,26 @@ function TOM.DB.SetOutfitMetadata(index, key, value)
 end
 
 function TOM.DB.SaveOutfit(outfitName, outfitData)
-    local outfit = {name = outfitName, data = outfitData, metadata = getDefaultMetadata()}
-    if not outfitInAccountDB(outfit) then
+    if not TOM.DB.OutfitExists(outfitName) then
+        local outfit = {name = outfitName, data = outfitData, metadata = getDefaultMetadata()}
         tinsert(TOM.DB._sources.accDB, outfit)
         numOutfits = numOutfits + 1
-        print("table.getn(accDB) = ", table.getn(TOM.DB._sources.accDB), " numOutfits = ", numOutfits)
         return numOutfits
     end
     return 0
+end
+
+function TOM.DB.OverwriteOutfit(outfitName, charName, charRealm, charClass, slotData)
+    for index, outfit in pairs(TOM.DB._sources.accDB) do
+        if outfitName == outfit.name and
+           charName == outfit.metadata.owner.name and
+           charRealm == outfit.metadata.owner.realm and
+           charClass == outfit.metadata.owner.class then
+            outfit.data = slotData
+            return true
+        end
+    end
+    return false
 end
 
 function TOM.DB.RenameOutfit(index, newName)
@@ -170,7 +179,6 @@ function TOM.DB.DeleteOutfit(index)
     local res = tremove(TOM.DB._sources.accDB, index)
     if res then
         numOutfits = numOutfits - 1
-        print(table.getn(TOM.DB._sources.accDB), numOutfits)
     end
     return res ~= nil
 end
