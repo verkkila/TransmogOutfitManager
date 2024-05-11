@@ -44,21 +44,49 @@ local function rctoindex(r, c)
 	return ((r - 1) * 4 + c)
 end
 
-local function isValidOutfitForPlayer(outfit)
+--comparison function for two cache entries, puts favorites first
+local function favcmp(a, b)
+	if not b then return true end
+	local fullName = getFullPlayerName(UnitName("player"), GetRealmName())
+	local aFavoritedOn, bFavoritedOn = a.metadata.favoritedOn, b.metadata.favoritedOn
+	local aHasFavorite, bHasFavorite = false, false
+	for _, name in pairs(aFavoritedOn) do
+		if name == fullName then aHasFavorite = true end
+	end
+	for _, name in pairs(bFavoritedOn) do
+		if name == fullName then bHasFavorite = true end
+	end
+	--if both are favorited, default to a first
+	if aHasFavorite and bHasFavorite then
+		return a.metadata.modifiedAt < b.metadata.modifiedAt
+	end
+	return aHasFavorite and not bHasFavorite
+end
+
+TOM.Core.shareOutfits = true
+
+local function isValidOutfitForPlayer(dbIndex)
 	local myName, myRealm, myClass = TOM.Core.GetPlayerInfo()
-	return outfit.metadata[TOM.DB.Keys["OWNER"]][TOM.DB.Keys["OWNER_CLASS"]] == myClass
+	if TOM.DB.GetOutfitMetadata(dbIndex, TOM.DB.Keys["OWNER_CLASS"]) == myClass then
+		if not TOM.Core.shareOutfits then
+			return TOM.DB.GetOutfitMetadata(dbIndex, TOM.DB.Keys["OWNER_NAME"]) == myName
+		end
+		return true
+	end
 end
 
 --shouldnt access outfit data directly (probably) but fix later
 local function buildCache()
 	local myName, myRealm, myClass = TOM.Core.GetPlayerInfo()
-	for i = 1, TOM.DB.NumSavedOutfits() do
-		local outfit = TOM.DB.GetOutfit(i)
-		if isValidOutfitForPlayer(outfit) then
+	wipe(cache)
+	for index = 1, TOM.DB.NumSavedOutfits() do
+		local outfit = TOM.DB.GetOutfit(index)
+		if isValidOutfitForPlayer(index) then
 			cacheSize = cacheSize + 1
-			cache[cacheSize] = {name = outfit.name, metadata = outfit.metadata, dbIndex = i}
+			cache[cacheSize] = {name = outfit.name, metadata = outfit.metadata, dbIndex = index}
 		end
 	end
+	sort(cache, favcmp)
 end
 
 function TOM.Core.Init()
@@ -105,15 +133,6 @@ function TOM.Core.DeleteOutfit(modelFrame)
 			cacheSize = cacheSize - 1
 		end
 	end
-	--[[
-	for cacheIndex, cacheEntry in ipairs(cache) do
-		if cacheEntry.name == outfit.name and cacheEntry.metadata == outfit.metadata then
-			TOM.DB.DeleteOutfit(cacheEntry.dbIndex)
-			tremove(cache, cacheIndex)
-			cacheSize = cacheSize - 1
-		end
-	end
-	]]--
 end
 
 function TOM.Core.GetNumOutfits()
@@ -124,13 +143,6 @@ function TOM.Core.GetOutfit(page, row, column)
 	local cacheEntry = cache[prctoindex(page, row, column)]
 	if cacheEntry then
 		return TOM.DB.GetOutfit(cacheEntry.dbIndex)
-	end
-end
-
-function TOM.Core.GetCacheEntry(index)
-	local cacheEntry = cache[index]
-	if cacheEntry then
-		return cacheEntry
 	end
 end
 
@@ -163,7 +175,9 @@ function TOM.Core.IsFavorited(modelFrame)
 	if outfit and cacheEntry then
 		local favoritedOn = TOM.DB.GetOutfitMetadata(cacheEntry.dbIndex, TOM.DB.Keys["FAVORITED_ON"])
 		for _, name in pairs(favoritedOn) do
-			if name == fullName then return true end
+			if name == fullName then
+				return true
+			end
 		end
 		return false
 	end
@@ -179,10 +193,12 @@ function TOM.Core.ToggleFavorite(modelFrame)
 		for index, name in pairs(favoritedOn) do
 			if name == fullName then
 				tremove(favoritedOn, index)
+				sort(cache, favcmp)
 				return false
 			end
 		end
 		tinsert(favoritedOn, fullName)
+		sort(cache, favcmp)
 		return true
 	end
 end

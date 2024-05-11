@@ -77,6 +77,7 @@ local function tryCreateTransmogInfo(outfit)
 			if pInfo.Init and pInfo.transmogID > 0 and pInfo.type then
 				tinsert(ret, {location = loc, pendingInfo = pInfo})
 			else
+				print("no pInfo")
 				return nil
 			end
 		end

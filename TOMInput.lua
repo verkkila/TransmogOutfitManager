@@ -77,6 +77,7 @@ local function onDropdownMenuItemClicked(self, arg1, arg2)
 		local res = TOM.Core.ToggleFavorite(TOM.Display.selectedModelFrame)
 		if res ~= nil then
 			TOM.Display.selectedModelFrame.FavIcon:SetShown(res)
+			TOM.Display.Redraw()
 		end
 	elseif arg1 == DROPDOWN_RENAME then
 		local dialog = StaticPopup_Show("TOM_RenameOutfit")
