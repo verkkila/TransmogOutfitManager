@@ -192,11 +192,13 @@ function TOM.Core.ToggleFavorite(modelFrame)
 		local favoritedOn = TOM.DB.GetOutfitMetadata(cacheEntry.dbIndex, TOM.DB.Keys["FAVORITED_ON"])
 		for index, name in pairs(favoritedOn) do
 			if name == fullName then
+				TOM.DB.SetOutfitMetadata(cacheEntry.dbIndex, TOM.DB.Keys["MODIFIED_AT"], GetServerTime())
 				tremove(favoritedOn, index)
 				sort(cache, favcmp)
 				return false
 			end
 		end
+		TOM.DB.SetOutfitMetadata(cacheEntry.dbIndex, TOM.DB.Keys["MODIFIED_AT"], GetServerTime())
 		tinsert(favoritedOn, fullName)
 		sort(cache, favcmp)
 		return true
