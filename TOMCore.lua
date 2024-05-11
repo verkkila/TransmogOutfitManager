@@ -56,9 +56,9 @@ local function favcmp(a, b)
 	for _, name in pairs(bFavoritedOn) do
 		if name == fullName then bIsFavorited = true end
 	end
-	--if both are favorited, default to last modification timestamp
-	if aIsFavorited and bIsFavorited then
-		return a.metadata.modifiedAt < b.metadata.modifiedAt
+	--if both or neither are favorited, default to timestamp of creation
+	if (aIsFavorited and bIsFavorited) or (not aIsFavorited and not bIsFavorited) then
+		return a.metadata.createdAt < b.metadata.createdAt
 	end
 	return aIsFavorited and not bIsFavorited
 end
@@ -114,6 +114,7 @@ function TOM.Core.RenameOutfit(modelFrame, newName)
 	local cacheEntry = cache[cacheIndex]
 	if outfit and cacheEntry then
 		if TOM.DB.RenameOutfit(cacheEntry.dbIndex, newName) then
+			TOM.DB.SetOutfitMetadata(cacheEntry.dbIndex, TOM.DB.Keys["MODIFIED_AT"], GetServerTime())
 			cacheEntry.name = newName
 			return true
 		end
@@ -127,10 +128,16 @@ end
 
 function TOM.Core.DeleteOutfit(modelFrame)
 	local outfit, cacheIndex = TOM.Core.GetOutfitByFrame(modelFrame)
+	--print("TOM.Core.DeleteOutfit ", modelFrame, outfit.name, cacheIndex)
 	local cacheEntry = cache[cacheIndex]
 	if cacheEntry.name == outfit.name and cacheEntry.metadata == outfit.metadata then
+		--print("TOM.Core.DeleteOutfit cache check passed dbIndex = ", cacheEntry.dbIndex)
 		if TOM.DB.DeleteOutfit(cacheEntry.dbIndex) then
+			--print("TOM.DB.DeleteOutfit returned true")
 			tremove(cache, cacheIndex)
+			for _, entry in pairs(cache) do
+				if entry.dbIndex > cacheEntry.dbIndex then entry.dbIndex = entry.dbIndex - 1 end
+			end
 			cacheSize = cacheSize - 1
 		end
 	end
@@ -157,7 +164,7 @@ function TOM.Core.GetOutfitByFrame(modelFrame)
 end
 
 function TOM.Core.ResetDisplay()
-	currentView = {}
+	wipe(currentView)
 end
 
 function TOM.Core.SetModelFrame(modelFrame, row, column)
@@ -193,13 +200,11 @@ function TOM.Core.ToggleFavorite(modelFrame)
 		local favoritedOn = TOM.DB.GetOutfitMetadata(cacheEntry.dbIndex, TOM.DB.Keys["FAVORITED_ON"])
 		for index, name in pairs(favoritedOn) do
 			if name == fullName then
-				TOM.DB.SetOutfitMetadata(cacheEntry.dbIndex, TOM.DB.Keys["MODIFIED_AT"], GetServerTime())
 				tremove(favoritedOn, index)
 				sort(cache, favcmp)
 				return false
 			end
 		end
-		TOM.DB.SetOutfitMetadata(cacheEntry.dbIndex, TOM.DB.Keys["MODIFIED_AT"], GetServerTime())
 		tinsert(favoritedOn, fullName)
 		sort(cache, favcmp)
 		return true

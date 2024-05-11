@@ -166,7 +166,8 @@ function TOM.DB.RenameOutfit(index, newName)
 end
 
 function TOM.DB.DeleteOutfit(index)
-    tremove(TOM.DB._sources.accDB, index)
+    local res = tremove(TOM.DB._sources.accDB, index)
+    return res ~= nil
 end
 
 function TOM.DB.NumSavedOutfits()
