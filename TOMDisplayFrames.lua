@@ -65,25 +65,43 @@ local function addFavoriteIcon(modelFrame)
 	modelFrame.FavIcon:Hide()
 end
 
+local function tryCreateTransmogInfo(outfit)
+	ret = {}
+	for invSlotName, invSlotData in pairs(outfit.data) do
+		local loc = TransmogUtil.CreateTransmogLocation(invSlotName, Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
+		local _, _, _, canTransmog = C_Transmog.GetSlotInfo(loc)
+		local id = TOM.Core.GetTransmogId(invSlotData)
+		if canTransmog and id then
+			local pInfo = TransmogUtil.CreateTransmogPendingInfo(Enum.TransmogPendingType.Apply, id)
+			if pInfo.Init and pInfo.transmogID > 0 and pInfo.type then
+				tinsert(ret, {location = loc, pendingInfo = pInfo})
+			else
+				return nil
+			end
+		end
+	end
+	return ret
+end
+
 --needs rework
 local function modelFrameOnMouseDown(self, button)
+	TOM.Display.selectedModelFrame = GetMouseFocus()
 	if button == "LeftButton" then
-		local selectedFrame = GetMouseFocus()
-		local outfit = TOM.Core.GetOutfitByFrame(GetMouseFocus())
+		local outfit = TOM.Core.GetOutfitByFrame(TOM.Display.selectedModelFrame)
 		print("selectedOutfit: ", outfit)
 		if not outfit then return end
-		for invSlotName, invSlotData in pairs(outfit.data) do
-			local transmogLoc = TransmogUtil.CreateTransmogLocation(invSlotName, Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
-			C_Transmog.ClearPending(transmogLoc)
-			local _, _, _, canTransmog = C_Transmog.GetSlotInfo(transmogLoc)
-			local id = TOM.Core.GetTransmogId(invSlotData)
-			if canTransmog and id then
-				C_Transmog.SetPending(transmogLoc, TransmogUtil.CreateTransmogPendingInfo(Enum.TransmogPendingType.Apply, id))
+		local transmogInfo = tryCreateTransmogInfo(outfit)
+		if transmogInfo then
+			for _, info in pairs(transmogInfo) do
+				C_Transmog.ClearPending(info.location)
+				C_Transmog.SetPending(info.location, info.pendingInfo)
 			end
+			TOM.Display.RedrawBorders()
+		else
+			UIErrorsFrame:AddMessage("You cannot transmogrify this set", 1, 0, 0)
 		end
 		TOM.Display.RedrawBorders()
 	elseif button == "RightButton" then
-		TOM.activeModelFrame = GetMouseFocus()
 		ToggleDropDownMenu(1, nil, TOM.Input.OutfitDropdown, "cursor", 3, -3)
 	end
 end
