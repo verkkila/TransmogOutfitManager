@@ -36,13 +36,24 @@ function TOM.Display.UpdatePageButtons()
 	end
 end
 
---bounds check, return shouldDisable
+--these could return true if the page was changed and false if it was not
 function TOM.Display.PreviousPage()
-	currentPage = currentPage - 1
+	if currentPage > 1 then
+		currentPage = currentPage - 1
+		TOM.Input.NextPageButton:SetEnabled(true)
+	end
+	TOM.Display.Redraw()
+	TOM.Display.UpdatePageText()
 end
 
 function TOM.Display.NextPage()
-	currentPage = currentPage + 1
+	if currentPage < math.ceil(TOM.Core.GetNumOutfits() / 8) then
+		currentPage = currentPage + 1
+		TOM.Input.PreviousPageButton:SetEnabled(true)
+	end
+	if currentPage == TOM.Display.NumPages() then TOM.Input.NextPageButton:SetEnabled(false) end
+	TOM.Display.Redraw()
+	TOM.Display.UpdatePageText()
 end
 
 function TOM.Display.GetCurrentPage()
@@ -53,7 +64,7 @@ function TOM.Display.NumPages()
 	return math.max(1, math.ceil(TOM.Core.GetNumOutfits() / 8))
 end
 
---prevent selecting other outfits while there's an open staticpopup (rename,delete)
+--prevents selecting other outfits while a dialog box is open
 function TOM.Display.Lock()
 	TOM.Display._locked = true
 end
@@ -139,7 +150,8 @@ local function containerOnEvent(self, event, ...)
 	elseif event == "TRANSMOGRIFY_SUCCESS" then
 		TOM.Display.Redraw()
 	elseif event == "TRANSMOGRIFY_UPDATE" then
-		--causes tons of redraw calls when a set is selected, optimize this in the future
+		--causes tons of redraws when a set is selected, optimize this in the future
+		--possibly use a counter and only redraw on the last one
 		TOM.Display.RedrawBorders()
 		TOM.Display.UpdateSaveButton()
 	end

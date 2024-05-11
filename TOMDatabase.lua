@@ -182,7 +182,6 @@ function TOM.DB.DeleteOutfit(index)
 end
 
 function TOM.DB.NumSavedOutfits()
-    --if outfits have been counted then return that count, otherwise do manual count
     if numOutfits then
         return numOutfits
     end
@@ -192,7 +191,7 @@ end
 function TOM.DB.CountOutfits()
     numOutfits = 0
     for _, outfit in pairs(TOM.DB._sources.accDB) do
-        --if validate then increment count otherwise tremove it
+        --should do validation here, but alas
         numOutfits = numOutfits + 1
     end
     return numOutfits

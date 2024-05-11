@@ -49,7 +49,7 @@ end
 --comparison function for two cache entries, puts favorites first
 local function favcmp(a, b)
 	if not b then return true end
-	local fullName = getFullPlayerName(UnitName("player"), GetRealmName())
+	local fullName = getFullPlayerName()
 	local aFavoritedOn, bFavoritedOn = a.metadata.favoritedOn, b.metadata.favoritedOn
 	local aIsFavorited, bIsFavorited = false, false
 	for _, name in pairs(aFavoritedOn) do
@@ -195,11 +195,13 @@ end
 
 --returns "CharName-RealmName" representation
 function getFullPlayerName(name, realm)
-	return strjoin("-", name, realm)
+	local charName = name or UnitName("player")
+	local charRealm = realm or GetRealmName()
+	return strjoin("-", charName, charRealm)
 end
 
 function TOM.Core.IsFavorited(modelFrame)
-	local fullName = getFullPlayerName(UnitName("player"), GetRealmName())
+	local fullName = getFullPlayerName()
 	local outfit, cacheIndex = TOM.Core.GetOutfitByFrame(modelFrame)
 	local cacheEntry = cache[cacheIndex]
 	if outfit and cacheEntry then
@@ -215,7 +217,7 @@ end
 
 --returns true when set, false when unset
 function TOM.Core.ToggleFavorite(modelFrame)
-	local fullName = getFullPlayerName(UnitName("player"), GetRealmName())
+	local fullName = getFullPlayerName()
 	local outfit, cacheIndex = TOM.Core.GetOutfitByFrame(modelFrame)
 	local cacheEntry = cache[cacheIndex]
 	if outfit and cacheEntry then

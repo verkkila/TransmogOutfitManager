@@ -1,6 +1,5 @@
 local addonName, TOM = ...
 
-
 local DROPDOWN_TOGGLEFAVORITE = 1
 local DROPDOWN_RENAME = 2
 local DROPDOWN_DELETE = 3
@@ -19,24 +18,12 @@ end
 
 local function previousPageButtonOnClick(self, button, down)
 	if button ~= "LeftButton" then return end
-	if TOM.Display.GetCurrentPage() > 1 then
-		TOM.Display.PreviousPage()
-		TOM.Input.NextPageButton:SetEnabled(true)
-	end
-	if TOM.Display.GetCurrentPage() == 1 then TOM.Input.PreviousPageButton:SetEnabled(false) end
-	TOM.Display.Redraw()
-	TOM.Display.UpdatePageText()
+	TOM.Display.PreviousPage()
 end
 
 local function nextPageButtonOnClick(self, button, down)
 	if button ~= "LeftButton" then return end
-	if TOM.Display.GetCurrentPage() < math.ceil(TOM.Core.GetNumOutfits() / 8) then
-		TOM.Display.NextPage()
-		TOM.Input.PreviousPageButton:SetEnabled(true)
-	end
-	if TOM.Display.GetCurrentPage() == TOM.Display.NumPages() then TOM.Input.NextPageButton:SetEnabled(false) end
-	TOM.Display.Redraw()
-	TOM.Display.UpdatePageText()
+	TOM.Display.NextPage()
 end
 
 local function saveOutfitButtonOnClick(self, button, down)
@@ -71,10 +58,7 @@ local function onDropdownMenuItemClicked(self, arg1, arg2)
 			TOM.Display.Redraw()
 		end
 	elseif arg1 == DROPDOWN_RENAME then
-		local dialog = StaticPopup_Show("TOM_RenameOutfit")
-		if dialog then
-			--is this necessary anymore?
-		end
+		StaticPopup_Show("TOM_RenameOutfit")
 	elseif arg1 == DROPDOWN_DELETE then
 		local outfitName = TOM.Core.GetOutfitByFrame(TOM.Display.selectedModelFrame).name
 		StaticPopupDialogs["TOM_DeleteOutfit"].text = "Delete outfit \'" .. outfitName .. "\'?"
