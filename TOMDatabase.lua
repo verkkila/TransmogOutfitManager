@@ -69,8 +69,9 @@ local function migrateOutfits()
             count = count + 1
             tinsert(TOM.DB._sources.accDB, {name = outfit.name, data = outfit.data, metadata = getDefaultMetadata()})
         end
-        tremove(TOM.DB._sources.charDB, index)
     end
+    --think this through 100%
+    wipe(TOM.DB._sources.charDB)
     return count
 end
 
