@@ -10,8 +10,8 @@ end
 
 function TOM.Display.UpdateSaveButton()
 	local validName = TOM.Core.IsValidName(TOM.Input.OutfitNameBox:GetText())
-	if TOM.appliedOutfitName and (TOM.appliedOutfitName ~= TOM.Input.OutfitNameBox:GetText()) then
-		local isOutfitDifferent = not TOM.Core.IsWearingOutfit(TOM.appliedOutfitName)
+	if TOM.appliedOutfit and (TOM.appliedOutfit.name ~= TOM.Input.OutfitNameBox:GetText()) then
+		local isOutfitDifferent = not TOM.Core.IsOutfitSelected(TOM.appliedOutfit)
 		TOM.Input.SaveOutfitButton:SetEnabled(validName and isOutfitDifferent)
 	else
 		TOM.Input.SaveOutfitButton:SetEnabled(validName)
@@ -69,6 +69,7 @@ function TOM.Display.SetModelBorder(row, column, borderType)
 end
 
 local function doBorders(outfit, row, column)
+	--print("doBorders: ", outfit.name, row, column)
 	if TOM.Core.IsOutfitApplied(outfit) then
 		TOM.Display.SetModelBorder(row, column, BORDERTYPE_APPLIED)
 	elseif TOM.Core.IsOutfitSelected(outfit) then
@@ -79,10 +80,9 @@ local function doBorders(outfit, row, column)
 end
 
 function TOM.Display.RedrawBorders()
-	local page = TOM.Display.GetCurrentPage()
 	for row = 1, 2 do
 		for column = 1, 4 do
-			local outfit = TOM.Core.GetOutfit(page, row, column)
+			local outfit = TOM.Core.GetOutfit(TOM.Display.GetCurrentPage(), row, column)
 			if outfit then
 				doBorders(outfit, row, column)
 			end
@@ -102,7 +102,7 @@ function TOM.Display.Redraw(self)
 			local modelFrame = TOM.Display.GetModelFrame(row, column)
 			local outfit = TOM.Core.GetOutfit(TOM.Display.GetCurrentPage(), row, column)
 			if outfit then
-				TOM.Core.DisplayOutfit(outfit.name, row, column)
+				TOM.Core.SetModelFrame(modelFrame, row, column)
 				doBorders(outfit, row, column)
 				modelFrame:Show()
 				modelFrame.OutfitName:SetText(outfit.name)
@@ -114,7 +114,7 @@ function TOM.Display.Redraw(self)
 						modelFrame:TryOn(transmogId)
 					end
 				end
-				modelFrame.FavIcon:SetShown(TOM.Core.IsFavorited(outfit.name))
+				--modelFrame.FavIcon:SetShown(TOM.Core.IsFavorited(outfit.name))
 			else
 				modelFrame:Hide()
 			end
@@ -126,8 +126,7 @@ local function containerOnEvent(self, event, ...)
 	if event == "ADDON_LOADED" then
 		local addonname = ...
 		if addonName == addonname then
-			TOM.DB.Init()
-			TOM.DB.CountOutfits()
+			TOM.Core.Init()
 			TOM.Input.Init()
 			TOM.Display.Container:UnregisterEvent("ADDON_LOADED")
 		end

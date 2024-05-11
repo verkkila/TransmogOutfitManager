@@ -65,13 +65,14 @@ local function addFavoriteIcon(modelFrame)
 	modelFrame.FavIcon:Hide()
 end
 
+--needs rework
 local function modelFrameOnMouseDown(self, button)
 	if button == "LeftButton" then
-		local outfitName = GetMouseFocus().OutfitName:GetText()
-		if not outfitName then return end
-		local index = TOM.Core.GetOutfitByName(outfitName)
-		if index == 0 then return end
-		for invSlotName, invSlotData in pairs(TOM.Core.GetOutfitData(index)) do
+		local selectedFrame = GetMouseFocus()
+		local outfit = TOM.Core.GetOutfitByFrame(GetMouseFocus())
+		print("selectedOutfit: ", outfit)
+		if not outfit then return end
+		for invSlotName, invSlotData in pairs(outfit.data) do
 			local transmogLoc = TransmogUtil.CreateTransmogLocation(invSlotName, Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
 			C_Transmog.ClearPending(transmogLoc)
 			local _, _, _, canTransmog = C_Transmog.GetSlotInfo(transmogLoc)
@@ -80,7 +81,7 @@ local function modelFrameOnMouseDown(self, button)
 				C_Transmog.SetPending(transmogLoc, TransmogUtil.CreateTransmogPendingInfo(Enum.TransmogPendingType.Apply, id))
 			end
 		end
-		TOM.Display.Redraw()
+		TOM.Display.RedrawBorders()
 	elseif button == "RightButton" then
 		TOM.activeModelFrame = GetMouseFocus()
 		ToggleDropDownMenu(1, nil, TOM.Input.OutfitDropdown, "cursor", 3, -3)

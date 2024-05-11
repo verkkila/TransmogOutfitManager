@@ -69,14 +69,14 @@ end
 
 local function onDropdownMenuItemClicked(self, arg1, arg2)
 	if arg1 == DROPDOWN_TOGGLEFAVORITE then
-		local outfitName = TOM.Core.GetOutfitNameByFrame(TOM.activeModelFrame)
-		TOM.Core.ToggleFavorite(outfitName)
-		TOM.activeModelFrame.FavIcon:SetShown(TOM.Core.IsFavorited(outfitName))
+		--local outfitName = TOM.Core.GetOutfitNameByFrame(TOM.activeModelFrame)
+		--TOM.Core.ToggleFavorite(outfitName)
+		--TOM.activeModelFrame.FavIcon:SetShown(TOM.Core.IsFavorited(outfitName))
 	elseif arg1 == DROPDOWN_RENAME then
 		local dialog = StaticPopup_Show("TOM_RenameOutfit")
 		if dialog then
 			--this feels a bit risky
-			dialog.data = TOM.Core.GetOutfitNameByFrame(TOM.activeModelFrame)
+			--dialog.data = TOM.Core.GetOutfitNameByFrame(TOM.activeModelFrame)
 		end
 	elseif arg1 == DROPDOWN_DELETE then
 		local outfitName = TOM.activeModelFrame.OutfitName:GetText()

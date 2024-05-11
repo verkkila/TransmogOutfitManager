@@ -31,12 +31,10 @@ local function validateOutfit(outfit)
     return outfit.name ~= nil
 end
 
-local function getDefaultMetadata()
+function getDefaultMetadata()
     local m = {}
     local now = GetServerTime()
-    local myName = UnitName("player")
-    local myRealm = GetRealmName()
-    local myClass = select(2, UnitClass("player"))
+    local myName, myRealm, myClass = TOM.Core.GetPlayerInfo()
 
     --this syntax is horrible
     m[TOM.DB.Keys["OWNER"]] = {}
@@ -66,10 +64,11 @@ end
 
 local function migrateOutfits()
     local count = 0
-    for _, outfit in pairs(TOM.DB._sources.charDB) do
+    for index, outfit in ipairs(TOM.DB._sources.charDB) do
         if not outfitInAccountDB(outfit) then
             count = count + 1
             tinsert(TOM.DB._sources.accDB, {name = outfit.name, data = outfit.data, metadata = getDefaultMetadata()})
+            --tremove(TOM.DB._sources.charDB, index)
         end
     end
     return count
@@ -80,7 +79,7 @@ function TOM.DB.Init()
     TOM.DB._sources.charDB = TransmogOutfitManagerDB
     TOM.DB._sources.accDB = TransmogOutfitManagerDBAccount
     local migrated = migrateOutfits()
-    print(migrated)
+    TOM.DB.CountOutfits()
 end
 
 function TOM.DB.OutfitExists(index)
@@ -108,14 +107,14 @@ function TOM.DB.GetAllOutfits()
             end
 end
 
-function TOM.DB.GetOutfitMetadata(outfitName, key)
+function TOM.DB.GetOutfitMetadata(dbIndex, key)
     local outfit = TOM.DB.GetOutfitByName(outfitName)
     if outfit and outfit.metadata then
         return outfit.metadata[key]
     end
 end
 
-function TOM.DB.SetOutfitMetadata(outfitName, key, value)
+function TOM.DB.SetOutfitMetadata(dbIndex, key, value)
     local outfit = TOM.DB.GetOutfitByName(outfitName)
     if outfit and outfit.metadata then
         outfit.metadata[key] = value
@@ -123,12 +122,14 @@ function TOM.DB.SetOutfitMetadata(outfitName, key, value)
 end
 
 function TOM.DB.SaveOutfit(outfitName, outfitData)
-    --TODO: add metadata
     local outfit = {name = outfitName, data = outfitData, metadata = getDefaultMetadata()}
     if validateOutfit(outfit) then
-	    table.insert(TOM.DB._sources.accDB, outfit)
+	    --table.insert(TOM.DB._sources.accDB, outfit)
         numOutfits = numOutfits + 1
+        TOM.DB._sources.accDB[numOutfits] = outfit
+        return numOutfits
     end
+    return 0
 end
 
 function TOM.DB.RenameOutfit(oldName, newName)
@@ -142,7 +143,8 @@ end
 --is there a use case for returning the new count?
 function TOM.DB.DeleteOutfitByName(outfitName)
     local outfitIndex = TOM.DB.OutfitExistsByName(outfitName)
-    if outfitIndex > 0 and table.remove(TOM.DB._sources.accDB, outfitIndex) then
+    if outfitIndex > 0 then
+        table.remove(TOM.DB._sources.accDB, outfitIndex)
         numOutfits = max(0, numOutfits - 1)
         return true
     end
