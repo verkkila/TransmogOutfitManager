@@ -49,18 +49,18 @@ local function favcmp(a, b)
 	if not b then return true end
 	local fullName = getFullPlayerName(UnitName("player"), GetRealmName())
 	local aFavoritedOn, bFavoritedOn = a.metadata.favoritedOn, b.metadata.favoritedOn
-	local aHasFavorite, bHasFavorite = false, false
+	local aIsFavorited, bIsFavorited = false, false
 	for _, name in pairs(aFavoritedOn) do
-		if name == fullName then aHasFavorite = true end
+		if name == fullName then aIsFavorited = true end
 	end
 	for _, name in pairs(bFavoritedOn) do
-		if name == fullName then bHasFavorite = true end
+		if name == fullName then bIsFavorited = true end
 	end
-	--if both are favorited, default to a first
-	if aHasFavorite and bHasFavorite then
+	--if both are favorited, default to last modification timestamp
+	if aIsFavorited and bIsFavorited then
 		return a.metadata.modifiedAt < b.metadata.modifiedAt
 	end
-	return aHasFavorite and not bHasFavorite
+	return aIsFavorited and not bIsFavorited
 end
 
 TOM.Core.shareOutfits = true
@@ -79,6 +79,7 @@ end
 local function buildCache()
 	local myName, myRealm, myClass = TOM.Core.GetPlayerInfo()
 	wipe(cache)
+	cacheSize = 0
 	for index = 1, TOM.DB.NumSavedOutfits() do
 		local outfit = TOM.DB.GetOutfit(index)
 		if isValidOutfitForPlayer(index) then
