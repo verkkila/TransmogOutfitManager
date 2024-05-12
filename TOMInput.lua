@@ -70,7 +70,7 @@ local function initDropdownMenu(frame, level, menuList)
 	local info = UIDropDownMenu_CreateInfo()
 	info.func = onDropdownMenuItemClicked
 	info.notCheckable = true
-	info.text, info.arg1 = "Toggle favorite", DROPDOWN_TOGGLEFAVORITE
+	info.text, info.arg1 = "Set favorite", DROPDOWN_TOGGLEFAVORITE
 	UIDropDownMenu_AddButton(info)
 	info.text, info.arg1 = "Rename", DROPDOWN_RENAME
 	UIDropDownMenu_AddButton(info)
