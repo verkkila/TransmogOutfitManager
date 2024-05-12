@@ -9,5 +9,4 @@ Inspired by [Transmog Outfits](https://www.curseforge.com/wow/addons/transmog-ou
 
 ### Future versions
 
-- Favorite, sort and filter outfits
-- Share outfits between characters when applicable
+- Sort and filter outfits
