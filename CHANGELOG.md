@@ -1,3 +1,11 @@
+### 1.2.0
+
+New feature: Share outfits between characters of the same class. After updating to 1.2.0 you need to have logged in
+and opened either the Collections tab (default keybind Shift-P) or the Transmogrifier interface in order to have your character's
+outfits be seen by other characters.  
+New feature: Set outfits as favorite, accessible via the right-click dropdown menu. Favorited outfits are marked with a star and
+sorted first in the display.
+
 ### 1.1.2
 
 New border assets: Displays green borders for currently applied outfit and yellow borders for currently selected outfit.  

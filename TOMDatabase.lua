@@ -26,7 +26,7 @@ TOM.DB.Keys = {
     ["MODIFIED_AT"] = "modifiedAt"
 }
 
-function getDefaultMetadata()
+local function getDefaultMetadata()
     local m = {}
     local now = GetServerTime()
     local myName, myRealm, myClass = TOM.Core.GetPlayerInfo()
@@ -55,13 +55,20 @@ local function migrateOutfits()
     return count
 end
 
-function countOutfits()
+local function countOutfits()
     numOutfits = 0
     for _, outfit in pairs(TOM.DB._sources.accDB) do
         --should do validation here, but alas
         numOutfits = numOutfits + 1
     end
     return numOutfits
+end
+
+local function isValidKey(key)
+    for k, v in pairs(TOM.DB.Keys) do
+        if v == key then return true end
+    end
+    return false
 end
 
 function TOM.DB.Init()
@@ -91,12 +98,7 @@ function TOM.DB.GetOutfit(index)
     return TOM.DB._sources.accDB[index]
 end
 
-function isValidKey(key)
-    for k, v in pairs(TOM.DB.Keys) do
-        if v == key then return true end
-    end
-    return false
-end
+
 
 function TOM.DB.GetOutfitMetadata(index, key)
     if not isValidKey(key) then return nil end
