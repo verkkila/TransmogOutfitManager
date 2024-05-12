@@ -98,8 +98,6 @@ function TOM.DB.GetOutfit(index)
     return TOM.DB._sources.accDB[index]
 end
 
-
-
 function TOM.DB.GetOutfitMetadata(index, key)
     if not isValidKey(key) then return nil end
     local outfit = TOM.DB._sources.accDB[index]
