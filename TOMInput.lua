@@ -31,7 +31,6 @@ local function saveOutfitButtonOnClick(self, button, down)
 	if outfitName == "" then return end
 	local myName, myRealm, myClass = TOM.Core.GetPlayerInfo()
 	if not TOM.Core.OutfitExists(outfitName, myName, myRealm, myClass) then
-		--local slotData = TOM.Core.GenerateSlotData()
 		TOM.Core.SaveOutfit(outfitName)
 	else
 		StaticPopupDialogs["TOM_OverwriteOutfit"].text = "Overwrite \'" .. outfitName .. "\'?"
@@ -64,9 +63,6 @@ local function onDropdownMenuItemClicked(self, arg1, arg2)
 		local outfitName = TOM.Core.GetOutfitByFrame(TOM.Display.selectedModelFrame).name
 		StaticPopupDialogs["TOM_DeleteOutfit"].text = "Delete outfit \'" .. outfitName .. "\'?"
 		local dialog = StaticPopup_Show("TOM_DeleteOutfit")
-		if dialog then
-			dialog.data = TOM.Display.selectedModelFrame
-		end
 	end
 end
 

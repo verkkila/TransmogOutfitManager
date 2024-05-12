@@ -115,6 +115,15 @@ function TOM.Core.OutfitExists(outfitName, charName, charRealm, charClass)
 	return TOM.DB.OutfitExists(outfitName, charName, charRealm, charClass)
 end
 
+function TOM.Core.GetOwner(modelFrame)
+	local outfit, cacheIndex = TOM.Core.GetOutfitByFrame(modelFrame)
+	local cacheEntry = cache[cacheIndex]
+	if outfit and cacheEntry then
+		local owner = TOM.DB.GetOutfitMetadata(cacheEntry.dbIndex, TOM.DB.Keys["OWNER"])
+		return owner.name, owner.realm, owner.class
+	end
+end
+
 function TOM.Core.GenerateSlotData()
 	local slotData = {}
 	for slotId, slotName in pairs(SLOTID_TO_NAME) do
@@ -152,7 +161,10 @@ function TOM.Core.OverwriteOutfit(outfitInfo)
 	if not outfitInfo.name or not outfitInfo.charName or not outfitInfo.charRealm or not outfitInfo.charClass then
 		return false
 	end
-	return TOM.DB.OverwriteOutfit(outfitInfo.name, outfitInfo.charName, outfitInfo.charRealm, outfitInfo.charClass, TOM.Core.GenerateSlotData())
+	local dbIndex = TOM.DB.OverwriteOutfit(outfitInfo.name, outfitInfo.charName, outfitInfo.charRealm, outfitInfo.charClass, TOM.Core.GenerateSlotData())
+	if dbIndex > 0 then
+		TOM.DB.SetOutfitMetadata(dbIndex, TOM.DB.Keys["MODIFIED_AT"], GetServerTime())
+	end
 end
 
 function TOM.Core.DeleteOutfit(modelFrame)
@@ -191,6 +203,8 @@ end
 
 function TOM.Core.ResetDisplay()
 	wipe(currentDisplay)
+	ROWS = 0
+	COLS = 0
 end
 
 function TOM.Core.SetDisplay(modelFrameArray, rows, columns)

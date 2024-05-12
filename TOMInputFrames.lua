@@ -44,6 +44,22 @@ local function renameDialogOnAccept(self)
 	end
 end
 
+local function renameDialogOnTextChanged(self)
+	if not TOM.Core.IsValidName(self:GetText()) then
+		self:GetParent().button1:SetEnabled(false)
+		return
+	end
+	local owner = TOM.Core.GetOwner(TOM.Display.selectedModelFrame)
+	if owner then
+		local outfitExists = TOM.Core.OutfitExists(self:GetText(), owner.name, owner.realm, owner.class)
+		if outfitExists then
+			self:GetParent().button1:SetEnabled(false)
+			return
+		end
+	end
+	self:GetParent().button1:SetEnabled(true)
+end
+
 StaticPopupDialogs["TOM_RenameOutfit"] = {
 	text = "Enter new name for outfit",
 	button1 = "Rename",
@@ -53,11 +69,7 @@ StaticPopupDialogs["TOM_RenameOutfit"] = {
 	OnShow = function(self, data)
 		self.button1:Disable()
 	end,
-	EditBoxOnTextChanged = function(self, data)
-		if TOM.Core.IsValidName(self:GetText()) then
-			self:GetParent().button1:SetEnabled(TOM.Core.GetOutfitByFrame(TOM.Display.selectedModelFrame).name ~= self:GetText())
-		end
-	end,
+	EditBoxOnTextChanged = renameDialogOnTextChanged,
 	OnAccept = renameDialogOnAccept,
 	OnShow = TOM.Display.Lock,
 	OnHide = TOM.Display.Unlock,
@@ -67,8 +79,8 @@ StaticPopupDialogs["TOM_RenameOutfit"] = {
 	preferredIndex = 3
 }
 
-local function deleteDialogOnAccept(self, name)
-	TOM.Core.DeleteOutfit(name)
+local function deleteDialogOnAccept(self)
+	TOM.Core.DeleteOutfit(TOM.Display.selectedModelFrame)
 	TOM.Display.Redraw()
 end
 

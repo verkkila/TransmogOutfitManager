@@ -146,10 +146,10 @@ function TOM.DB.OverwriteOutfit(outfitName, charName, charRealm, charClass, slot
            charRealm == outfit.metadata.owner.realm and
            charClass == outfit.metadata.owner.class then
             outfit.data = slotData
-            return true
+            return index
         end
     end
-    return false
+    return 0
 end
 
 function TOM.DB.RenameOutfit(index, newName)
