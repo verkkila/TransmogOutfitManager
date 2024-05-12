@@ -91,22 +91,6 @@ function TOM.DB.GetOutfit(index)
     return TOM.DB._sources.accDB[index]
 end
 
-function TOM.DB.GetOutfitByName(outfitName)
-    for _, outfit in pairs(TOM.DB._sources.accDB) do
-       if outfit.name == outfitName then return outfit end
-    end
-    return nil
-end
-
-function TOM.DB.GetAllOutfits()
-    local i = 0
-    local max = TOM.DB.NumSavedOutfits()
-    return  function()
-                i = i + 1
-                if i <= max then return TOM.DB._sources.accDB[i] end
-            end
-end
-
 function isValidKey(key)
     for k, v in pairs(TOM.DB.Keys) do
         if v == key then return true end

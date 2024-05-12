@@ -8,10 +8,14 @@ local function rctoindex(row, column)
 	return (row - 1) * TOM.Display.COLS + column
 end
 
+function TOM.Display.Init()
+	TOM.Core.SetDisplay(TOM.Display.ModelFrames, TOM.Display.ROWS, TOM.Display.COLS)
+end
+
 function TOM.Display.UpdateSaveButton()
 	local validName = TOM.Core.IsValidName(TOM.Input.OutfitNameBox:GetText())
-	if TOM.appliedOutfit and (TOM.appliedOutfit.name ~= TOM.Input.OutfitNameBox:GetText()) then
-		local isOutfitDifferent = not TOM.Core.IsOutfitSelected(TOM.appliedOutfit)
+	if TOM.Core.appliedOutfit and (TOM.Core.appliedOutfit.name ~= TOM.Input.OutfitNameBox:GetText()) then
+		local isOutfitDifferent = not TOM.Core.IsOutfitSelected(TOM.Core.appliedOutfit)
 		TOM.Input.SaveOutfitButton:SetEnabled(validName and isOutfitDifferent)
 	else
 		TOM.Input.SaveOutfitButton:SetEnabled(validName)
@@ -84,8 +88,8 @@ function TOM.Display.SetModelBorder(row, column, borderType)
 	if borderType == BORDERTYPE_APPLIED then backdrop = TOM.Display.Backdrops.applied end
 	if borderType == BORDERTYPE_SELECTED then backdrop = TOM.Display.Backdrops.selected end
 	local modelFrame = TOM.Display.ModelFrames[rctoindex(row, column)]
-	TOM.Display.ModelFrames[rctoindex(row, column)]:SetBackdrop(backdrop)
-	TOM.Display.ModelFrames[rctoindex(row, column)]:SetBackdropColor(0, 0, 0, 1)
+	modelFrame:SetBackdrop(backdrop)
+	modelFrame:SetBackdropColor(0, 0, 0, 1)
 end
 
 local function doBorders(outfit, row, column)
@@ -113,13 +117,11 @@ function TOM.Display.Redraw(self)
 	TOM.Display.UpdatePageText()
 	TOM.Display.UpdatePageButtons()
 	if TOM.Display.GetCurrentPage() > TOM.Display.NumPages() then TOM.Input.PreviousPageButton:Click("LeftButton") end
-	TOM.Core.ResetDisplay()
 	for row = 1, 2 do
 		for column = 1, 4 do
 			local modelFrame = TOM.Display.GetModelFrame(row, column)
 			local outfit = TOM.Core.GetOutfit(TOM.Display.GetCurrentPage(), row, column)
 			if outfit then
-				TOM.Core.SetModelFrame(modelFrame, row, column)
 				doBorders(outfit, row, column)
 				modelFrame:Show()
 				modelFrame.OutfitName:SetText(outfit.name)
@@ -143,7 +145,9 @@ local function containerOnEvent(self, event, ...)
 	if event == "ADDON_LOADED" then
 		local addonname = ...
 		if addonName == addonname then
+			TOM.DB.Init()
 			TOM.Core.Init()
+			TOM.Display.Init()
 			TOM.Input.Init()
 			TOM.Display.Container:UnregisterEvent("ADDON_LOADED")
 		end

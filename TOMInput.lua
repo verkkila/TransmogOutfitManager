@@ -31,8 +31,8 @@ local function saveOutfitButtonOnClick(self, button, down)
 	if outfitName == "" then return end
 	local myName, myRealm, myClass = TOM.Core.GetPlayerInfo()
 	if not TOM.Core.OutfitExists(outfitName, myName, myRealm, myClass) then
-		local slotData = TOM.Core.GenerateSlotData()
-		TOM.Core.SaveOutfit(outfitName, slotData)
+		--local slotData = TOM.Core.GenerateSlotData()
+		TOM.Core.SaveOutfit(outfitName)
 	else
 		StaticPopupDialogs["TOM_OverwriteOutfit"].text = "Overwrite \'" .. outfitName .. "\'?"
 		local dialog = StaticPopup_Show("TOM_OverwriteOutfit")
@@ -47,6 +47,7 @@ local function shareOutfitsButtonOnClick(self, button, down)
 	if button ~= "LeftButton" then return end
 	TOM.Options.shareOutfits = TOM.Input.ShareOutfitsButton:GetChecked()
 	TOM.Core.Refresh()
+	TOM.Display.Redraw()
 end
 
 

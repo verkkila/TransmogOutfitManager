@@ -97,11 +97,9 @@ local function modelFrameOnMouseDown(self, button)
 				C_Transmog.ClearPending(info.location)
 				C_Transmog.SetPending(info.location, info.pendingInfo)
 			end
-			TOM.Display.RedrawBorders()
 		else
 			UIErrorsFrame:AddMessage("You cannot transmogrify this set", 1, 0, 0)
 		end
-		TOM.Display.RedrawBorders()
 	elseif button == "RightButton" then
 		ToggleDropDownMenu(1, nil, TOM.Input.OutfitDropdown, "cursor", 3, -3)
 	end

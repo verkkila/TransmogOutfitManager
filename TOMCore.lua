@@ -5,8 +5,10 @@ TransmogOutfitManagerOptions = TransmogOutfitManagerOptions or {}
 
 TOM.Core = TOM.Core or {}
 
---associate offsets with frames (for mouse interaction), multiply offset/index by (page - 1) * 8 to get cache index
-local currentView = {}
+--need to bind the display frames to do reverse lookup (for mouse interaction)
+local currentDisplay = {}
+local ROWS = 0
+local COLS = 0
 
 --{{name, metadata, dbIndex}, {...}}
 --not really a cache, just an abstraction layer
@@ -39,11 +41,11 @@ local function getVisibleSlotId(slot)
 end
 
 local function prctoindex(p, r, c)
-	return ((p - 1) * 8) + ((r - 1) * 4 + c)
+	return ((p - 1) * (ROWS * COLS)) + ((r - 1) * COLS + c)
 end
 
 local function rctoindex(r, c)
-	return ((r - 1) * 4 + c)
+	return ((r - 1) * COLS + c)
 end
 
 local function getFullPlayerName(name, realm)
@@ -97,14 +99,12 @@ end
 
 function TOM.Core.Init()
 	TOM.Options = TransmogOutfitManagerOptions
-	TOM.DB.Init()
 	buildCache()
 end
 
---just do this for now
+--just do this for now, can optimize later
 function TOM.Core.Refresh()
 	buildCache()
-	TOM.Display.Redraw()
 end
 
 function TOM.Core.GetPlayerInfo()
@@ -126,7 +126,8 @@ end
 
 --by definition we cannot save outfits that are not applicable to our character so we can directly cache it
 function TOM.Core.SaveOutfit(outfitName, outfitData)
-	local index = TOM.DB.SaveOutfit(outfitName, outfitData)
+	local data = outfitData or TOM.Core.GenerateSlotData()
+	local index = TOM.DB.SaveOutfit(outfitName, data)
 	if index > 0 then
 		local outfit = TOM.DB.GetOutfit(index)
 		tinsert(cache, {name = outfit.name, metadata = outfit.metadata, dbIndex = index})
@@ -180,20 +181,22 @@ function TOM.Core.GetOutfit(page, row, column)
 end
 
 function TOM.Core.GetOutfitByFrame(modelFrame)
-	for offset, frame in ipairs(currentView) do
+	for offset, frame in ipairs(currentDisplay) do
 		if modelFrame == frame then
-			local cacheIndex = ((TOM.Display.GetCurrentPage() - 1) * 8) + offset
+			local cacheIndex = ((TOM.Display.GetCurrentPage() - 1) * (ROWS * COLS)) + offset
 			return TOM.DB.GetOutfit(cache[cacheIndex].dbIndex), cacheIndex
 		end
 	end
 end
 
 function TOM.Core.ResetDisplay()
-	wipe(currentView)
+	wipe(currentDisplay)
 end
 
-function TOM.Core.SetModelFrame(modelFrame, row, column)
-	currentView[rctoindex(row, column)] = modelFrame
+function TOM.Core.SetDisplay(modelFrameArray, rows, columns)
+	currentDisplay = modelFrameArray
+	ROWS = rows
+	COLS = columns
 end
 
 function TOM.Core.IsFavorited(modelFrame)
