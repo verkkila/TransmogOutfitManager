@@ -203,7 +203,7 @@ function TOM.Core.GetOutfitByFrame(modelFrame)
 end
 
 function TOM.Core.ResetDisplay()
-	wipe(currentDisplay)
+	currentDisplay = nil
 	ROWS = 0
 	COLS = 0
 end
