@@ -33,8 +33,8 @@ local function saveOutfitButtonOnClick(self, button, down)
 	if not TOM.Core.OutfitExists(outfitName, myName, myRealm, myClass) then
 		TOM.Core.SaveOutfit(outfitName)
 	else
-		StaticPopupDialogs["TOM_OverwriteOutfit"].text = "Overwrite \'" .. outfitName .. "\'?"
-		local dialog = StaticPopup_Show("TOM_OverwriteOutfit")
+		StaticPopupDialogs["TransmogOutfitManager_OverwriteDialog"].text = "Overwrite \'" .. outfitName .. "\'?"
+		local dialog = StaticPopup_Show("TransmogOutfitManager_OverwriteDialog")
 		if dialog then
 			dialog.data = {name = outfitName, charName = myName, charRealm = myRealm, charClass = myClass}
 		end
@@ -58,11 +58,11 @@ local function onDropdownMenuItemClicked(self, arg1, arg2)
 			TOM.Display.Redraw()
 		end
 	elseif arg1 == DROPDOWN_RENAME then
-		StaticPopup_Show("TOM_RenameOutfit")
+		StaticPopup_Show("TransmogOutfitManager_RenameDialog")
 	elseif arg1 == DROPDOWN_DELETE then
 		local outfitName = TOM.Core.GetOutfitByFrame(TOM.Display.selectedModelFrame).name
-		StaticPopupDialogs["TOM_DeleteOutfit"].text = "Delete outfit \'" .. outfitName .. "\'?"
-		local dialog = StaticPopup_Show("TOM_DeleteOutfit")
+		StaticPopupDialogs["TransmogOutfitManager_DeleteDialog"].text = "Delete outfit \'" .. outfitName .. "\'?"
+		StaticPopup_Show("TransmogOutfitManager_DeleteDialog")
 	end
 end
 

@@ -35,7 +35,7 @@ TOM.Input.ShareOutfitsButton:ClearAllPoints()
 TOM.Input.ShareOutfitsButton:SetPoint("CENTER", TOM.Display.Container, "TOPLEFT", 60, -30)
 TOM.Input.ShareOutfitsButton.Text:SetText("Show outfits from other characters")
 
-TOM.Input.OutfitDropdown = CreateFrame("Frame", "TransmogOutfitManagerOutfitDropdown", TOM.Display.Container, "UIDropDownMenuTemplate")
+TOM.Input.OutfitDropdown = CreateFrame("Frame", "TransmogOutfitManager_OutfitDropdown", TOM.Display.Container, "UIDropDownMenuTemplate")
 
 local function renameDialogOnAccept(self)
 	local newName = self.editBox:GetText()
@@ -60,7 +60,7 @@ local function renameDialogOnTextChanged(self)
 	self:GetParent().button1:SetEnabled(true)
 end
 
-StaticPopupDialogs["TOM_RenameOutfit"] = {
+StaticPopupDialogs["TransmogOutfitManager_RenameDialog"] = {
 	text = "Enter new name for outfit",
 	button1 = "Rename",
 	button2 = "Cancel",
@@ -84,7 +84,7 @@ local function deleteDialogOnAccept(self)
 	TOM.Display.Redraw()
 end
 
-StaticPopupDialogs["TOM_DeleteOutfit"] = {
+StaticPopupDialogs["TransmogOutfitManager_DeleteDialog"] = {
 	text = "---",
 	button1 = "Yes",
 	button2 = "No",
@@ -102,7 +102,7 @@ local function overwriteDialogOnAccept(self, outfitInfo)
 	TOM.Display.Redraw()
 end
 
-StaticPopupDialogs["TOM_OverwriteOutfit"] = {
+StaticPopupDialogs["TransmogOutfitManager_OverwriteDialog"] = {
 	text = "---",
 	button1 = "Yes",
 	button2 = "No",
