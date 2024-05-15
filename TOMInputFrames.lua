@@ -35,6 +35,18 @@ TOM.Input.ShareOutfitsButton:ClearAllPoints()
 TOM.Input.ShareOutfitsButton:SetPoint("CENTER", TOM.Display.Container, "TOPLEFT", 60, -30)
 TOM.Input.ShareOutfitsButton.Text:SetText("Show outfits from other characters")
 
+TOM.Input.FilterOutfitsBox = CreateFrame("EditBox", nil, TOM.Display.Container, "SearchBoxTemplate")
+TOM.Input.FilterOutfitsBox:ClearAllPoints()
+TOM.Input.FilterOutfitsBox:SetPoint("LEFT", TOM.Display.Container, "TOPRIGHT", -289, -28)
+TOM.Input.FilterOutfitsBox:SetSize(120, 35)
+TOM.Input.FilterOutfitsBox:SetAutoFocus(false)
+
+TOM.Input.SortOutfitsButton = CreateFrame("Button", nil, TOM.Display.Container, "UIMenuButtonStretchTemplate")
+TOM.Input.SortOutfitsButton:ClearAllPoints()
+TOM.Input.SortOutfitsButton:SetPoint("RIGHT", TOM.Display.Container, "TOPRIGHT", -110, -29)
+TOM.Input.SortOutfitsButton:SetSize(50, 22)
+TOM.Input.SortOutfitsButton:SetText("Sort")
+
 TOM.Input.OutfitDropdown = CreateFrame("Frame", "TransmogOutfitManager_OutfitDropdown", TOM.Display.Container, "UIDropDownMenuTemplate")
 
 local function renameDialogOnAccept(self)
