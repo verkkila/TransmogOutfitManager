@@ -38,7 +38,7 @@ TOM.Input.ShareOutfitsButton.Text:SetText("Show outfits from other characters")
 TOM.Input.FilterOutfitsBox = CreateFrame("EditBox", nil, TOM.Display.Container, "SearchBoxTemplate")
 TOM.Input.FilterOutfitsBox:ClearAllPoints()
 TOM.Input.FilterOutfitsBox:SetPoint("LEFT", TOM.Display.Container, "TOPRIGHT", -289, -28)
-TOM.Input.FilterOutfitsBox:SetSize(120, 35)
+TOM.Input.FilterOutfitsBox:SetSize(119, 35)
 TOM.Input.FilterOutfitsBox:SetAutoFocus(false)
 
 TOM.Input.SortOutfitsButton = CreateFrame("Button", nil, TOM.Display.Container, "UIMenuButtonStretchTemplate")
@@ -48,6 +48,7 @@ TOM.Input.SortOutfitsButton:SetSize(50, 22)
 TOM.Input.SortOutfitsButton:SetText("Sort")
 
 TOM.Input.OutfitDropdown = CreateFrame("Frame", "TransmogOutfitManager_OutfitDropdown", TOM.Display.Container, "UIDropDownMenuTemplate")
+TOM.Input.SortOutfitsDropdown = CreateFrame("Frame", "TransmogOutfitManager_SortOutfitsDropdown", TOM.Display.Container, "UIDropDownMenuTemplate")
 
 local function renameDialogOnAccept(self)
 	local newName = self.editBox:GetText()

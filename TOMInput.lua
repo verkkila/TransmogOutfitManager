@@ -4,6 +4,12 @@ local DROPDOWN_TOGGLEFAVORITE = 1
 local DROPDOWN_RENAME = 2
 local DROPDOWN_DELETE = 3
 
+local DROPDOWN_SORT_ASCENDING = 4
+local DROPDOWN_SORT_DESCENDING = 5
+local DROPDOWN_SORT_NAME = 6
+local DROPDOWN_SORT_CREATEDAT = 7
+local DROPDOWN_SORT_MODIFIEDAT = 8
+
 local function outfitsButtonOnClick(self, button, down)
 	if not TOM.Display.Container:IsVisible() then
 		TOM.Display.Container:Show()
@@ -49,6 +55,9 @@ local function shareOutfitsButtonOnClick(self, button, down)
 	TOM.Display.Redraw()
 end
 
+local function sortOutfitsButtonOnClick(self, button, down)
+	ToggleDropDownMenu(1, nil, TOM.Input.SortOutfitsDropdown, "cursor", 3, -3)
+end
 
 local function onDropdownMenuItemClicked(self, arg1, arg2)
 	if arg1 == DROPDOWN_TOGGLEFAVORITE then
@@ -63,10 +72,20 @@ local function onDropdownMenuItemClicked(self, arg1, arg2)
 		local outfitName = TOM.Core.GetOutfitByFrame(TOM.Display.selectedModelFrame).name
 		StaticPopupDialogs["TransmogOutfitManager_DeleteDialog"].text = "Delete outfit \'" .. outfitName .. "\'?"
 		StaticPopup_Show("TransmogOutfitManager_DeleteDialog")
+	elseif arg1 == DROPDOWN_SORT_ASCENDING then
+		print("1")
+	elseif arg1 == DROPDOWN_SORT_DESCENDING then
+		print("2")
+	elseif arg1 == DROPDOWN_SORT_NAME then
+		print("3")
+	elseif arg1 == DROPDOWN_SORT_CREATEDAT then
+		print("4")
+	elseif arg1 == DROPDOWN_SORT_MODIFIEDAT then
+		print("5")
 	end
 end
 
-local function initDropdownMenu(frame, level, menuList)
+local function initOutfitDropdown(frame, level, menuList)
 	local info = UIDropDownMenu_CreateInfo()
 	info.func = onDropdownMenuItemClicked
 	info.notCheckable = true
@@ -78,9 +97,30 @@ local function initDropdownMenu(frame, level, menuList)
 	UIDropDownMenu_AddButton(info)
 end
 
+local function initSortDropdown(frame, level, menuList)
+	local info, titles = UIDropDownMenu_CreateInfo(), UIDropDownMenu_CreateInfo()
+	info.func = onDropdownMenuItemClicked
+	titles.isTitle, titles.notCheckable = true, true
+	titles.text = "Type"
+	UIDropDownMenu_AddButton(titles)
+	info.text, info.arg1 = "Ascending", DROPDOWN_SORT_ASCENDING
+	UIDropDownMenu_AddButton(info)
+	info.text, info.arg1 = "Descending", DROPDOWN_SORT_DESCENDING
+	UIDropDownMenu_AddButton(info)
+	titles.text = "Parameter"
+	UIDropDownMenu_AddButton(titles)
+	info.text, info.arg1 = "Name", DROPDOWN_SORT_NAME
+	UIDropDownMenu_AddButton(info)
+	info.text, info.arg1 = "Date created", DROPDOWN_SORT_CREATEDAT
+	UIDropDownMenu_AddButton(info)
+	info.text, info.arg1 = "Last modification", DROPDOWN_SORT_MODIFIEDAT
+	UIDropDownMenu_AddButton(info)
+end
+
 function TOM.Input.Init()
 	TOM.Input.ShareOutfitsButton:SetChecked(TOM.Options.shareOutfits)
-	UIDropDownMenu_Initialize(TOM.Input.OutfitDropdown, initDropdownMenu, "MENU")
+	UIDropDownMenu_Initialize(TOM.Input.OutfitDropdown, initOutfitDropdown, "MENU")
+	UIDropDownMenu_Initialize(TOM.Input.SortOutfitsDropdown, initSortDropdown, "MENU")
 end
 
 TOM.Input.OutfitsButton:SetScript("OnClick", outfitsButtonOnClick)
@@ -89,3 +129,4 @@ TOM.Input.SaveOutfitButton:SetScript("OnClick", saveOutfitButtonOnClick)
 TOM.Input.PreviousPageButton:SetScript("OnClick", previousPageButtonOnClick)
 TOM.Input.NextPageButton:SetScript("OnClick", nextPageButtonOnClick)
 TOM.Input.ShareOutfitsButton:SetScript("OnClick", shareOutfitsButtonOnClick)
+TOM.Input.SortOutfitsButton:SetScript("OnClick", sortOutfitsButtonOnClick)
