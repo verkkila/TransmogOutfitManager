@@ -65,25 +65,17 @@ end
 
 --not a great way to do this
 local function metacmp(a, b)
-	if TOM.Core.sortState.name then
-		if TOM.Core.sortState.ascending then
-			return a.name:lower() < b.name:lower()
-		else
-			return a.name:lower() > b.name:lower()
-		end
-	elseif TOM.Core.sortState.createdAt then
-		if TOM.Core.sortState.ascending then
-			return a.metadata.createdAt < b.metadata.createdAt
-		else
-			return a.metadata.createdAt > b.metadata.createdAt
-		end
-	elseif TOM.Core.sortState.modifiedAt then
-		if TOM.Core.sortState.ascending then
-			return a.metadata.modifiedAt < b.metadata.modifiedAt
-		else
-			return a.metadata.modifiedAt > b.metadata.modifiedAt
-		end
+	if TOM.Core.sortState.ascending then
+		if TOM.Core.sortState.name then return a.name:lower() < b.name:lower()
+		elseif TOM.Core.sortState.createdAt then return a.metadata.createdAt < b.metadata.createdAt
+		elseif TOM.Core.sortState.modifiedAt then return a.metadata.modifiedAt < b.metadata.modifiedAt end
+	elseif TOM.Core.sortState.descending then
+		if TOM.Core.sortState.name then return a.name:lower() > b.name:lower()
+		elseif TOM.Core.sortState.createdAt then return a.metadata.createdAt > b.metadata.createdAt
+		elseif TOM.Core.sortState.modifiedAt then return a.metadata.modifiedAt > b.metadata.modifiedAt end
 	end
+	--just in case sortState gets corrupted
+	return a.metadata.createdAt < b.metadata.createdAt
 end
 
 --sort by favorites before non-favorites
@@ -130,8 +122,7 @@ end
 
 function TOM.Core.Init()
 	TOM.Options = TransmogOutfitManagerOptions
-	buildCache()
-	sort(cache, favcmp)
+	TOM.Core.Refresh()
 end
 
 --just do this for now, can optimize later
