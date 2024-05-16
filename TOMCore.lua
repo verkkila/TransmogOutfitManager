@@ -5,10 +5,19 @@ TransmogOutfitManagerOptions = TransmogOutfitManagerOptions or {}
 
 TOM.Core = TOM.Core or {}
 
---need to bind the display frames to do reverse lookup (for mouse interaction)
+--need to bind the display frames to do lookup based on frame ref (for mouse interaction)
 local currentDisplay = {}
 local ROWS = 0
 local COLS = 0
+
+--store sort state here so as not to create a dependency on Display/Input (i.e. query state from them)
+TOM.Core.sortState = {
+	["ascending"] = true,
+	["descending"] = false,
+	["name"] = false,
+	["createdAt"] = true,
+	["modifiedAt"] = false
+}
 
 --{{name, metadata, dbIndex}, {...}}
 --not really a cache, just an abstraction layer
@@ -54,6 +63,29 @@ local function getFullPlayerName(name, realm)
 	return strjoin("-", charName, charRealm)
 end
 
+--not a great way to do this
+local function metacmp(a, b)
+	if TOM.Core.sortState.name then
+		if TOM.Core.sortState.ascending then
+			return a.name:lower() < b.name:lower()
+		else
+			return a.name:lower() > b.name:lower()
+		end
+	elseif TOM.Core.sortState.createdAt then
+		if TOM.Core.sortState.ascending then
+			return a.metadata.createdAt < b.metadata.createdAt
+		else
+			return a.metadata.createdAt > b.metadata.createdAt
+		end
+	elseif TOM.Core.sortState.modifiedAt then
+		if TOM.Core.sortState.ascending then
+			return a.metadata.modifiedAt < b.metadata.modifiedAt
+		else
+			return a.metadata.modifiedAt > b.metadata.modifiedAt
+		end
+	end
+end
+
 --sort by favorites before non-favorites
 local function favcmp(a, b)
 	if not b then return true end
@@ -66,9 +98,9 @@ local function favcmp(a, b)
 	for _, name in pairs(bFavoritedOn) do
 		if name == fullName then bIsFavorited = true end
 	end
-	--if both or neither are favorited, compare by timestamp
+	--if both or neither are favorited, compare based on sort state
 	if (aIsFavorited and bIsFavorited) or (not aIsFavorited and not bIsFavorited) then
-		return a.metadata.createdAt < b.metadata.createdAt
+		return metacmp(a, b)
 	end
 	return aIsFavorited and not bIsFavorited
 end
@@ -94,17 +126,22 @@ local function buildCache()
 			cache[cacheSize] = {name = outfit.name, metadata = outfit.metadata, dbIndex = index}
 		end
 	end
-	sort(cache, favcmp)
 end
 
 function TOM.Core.Init()
 	TOM.Options = TransmogOutfitManagerOptions
 	buildCache()
+	sort(cache, favcmp)
 end
 
 --just do this for now, can optimize later
 function TOM.Core.Refresh()
 	buildCache()
+	sort(cache, favcmp)
+end
+
+function TOM.Core.SortCache()
+	sort(cache, favcmp)
 end
 
 function TOM.Core.GetPlayerInfo()
@@ -239,12 +276,10 @@ function TOM.Core.ToggleFavorite(modelFrame)
 		for index, name in pairs(favoritedOn) do
 			if name == fullName then
 				tremove(favoritedOn, index)
-				sort(cache, favcmp)
 				return false
 			end
 		end
 		tinsert(favoritedOn, fullName)
-		sort(cache, favcmp)
 		return true
 	end
 end

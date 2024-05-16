@@ -54,6 +54,8 @@ local function renameDialogOnAccept(self)
 	local newName = self.editBox:GetText()
 	if TOM.Core.RenameOutfit(TOM.Display.selectedModelFrame, newName) then
 		TOM.Display.selectedModelFrame.OutfitName:SetText(newName)
+		TOM.Core.SortCache()
+		TOM.Display.Redraw()
 	end
 end
 
@@ -94,6 +96,7 @@ StaticPopupDialogs["TransmogOutfitManager_RenameDialog"] = {
 
 local function deleteDialogOnAccept(self)
 	TOM.Core.DeleteOutfit(TOM.Display.selectedModelFrame)
+	TOM.Core.SortCache()
 	TOM.Display.Redraw()
 end
 
@@ -112,6 +115,7 @@ StaticPopupDialogs["TransmogOutfitManager_DeleteDialog"] = {
 
 local function overwriteDialogOnAccept(self, outfitInfo)
 	TOM.Core.OverwriteOutfit(outfitInfo)
+	TOM.Core.SortCache()
 	TOM.Display.Redraw()
 end
 

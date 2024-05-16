@@ -45,6 +45,7 @@ local function saveOutfitButtonOnClick(self, button, down)
 			dialog.data = {name = outfitName, charName = myName, charRealm = myRealm, charClass = myClass}
 		end
 	end
+	TOM.Core.SortCache()
 	TOM.Display.Redraw()
 end
 
@@ -59,11 +60,12 @@ local function sortOutfitsButtonOnClick(self, button, down)
 	ToggleDropDownMenu(1, nil, TOM.Input.SortOutfitsDropdown, "cursor", 3, -3)
 end
 
-local function onDropdownMenuItemClicked(self, arg1, arg2)
+local function onOutfitDropdownMenuItemClicked(self, arg1, arg2, checked)
 	if arg1 == DROPDOWN_TOGGLEFAVORITE then
 		local res = TOM.Core.ToggleFavorite(TOM.Display.selectedModelFrame)
 		if res ~= nil then
 			TOM.Display.selectedModelFrame.FavIcon:SetShown(res)
+			TOM.Core.SortCache()
 			TOM.Display.Redraw()
 		end
 	elseif arg1 == DROPDOWN_RENAME then
@@ -72,22 +74,38 @@ local function onDropdownMenuItemClicked(self, arg1, arg2)
 		local outfitName = TOM.Core.GetOutfitByFrame(TOM.Display.selectedModelFrame).name
 		StaticPopupDialogs["TransmogOutfitManager_DeleteDialog"].text = "Delete outfit \'" .. outfitName .. "\'?"
 		StaticPopup_Show("TransmogOutfitManager_DeleteDialog")
-	elseif arg1 == DROPDOWN_SORT_ASCENDING then
-		print("1")
-	elseif arg1 == DROPDOWN_SORT_DESCENDING then
-		print("2")
-	elseif arg1 == DROPDOWN_SORT_NAME then
-		print("3")
-	elseif arg1 == DROPDOWN_SORT_CREATEDAT then
-		print("4")
-	elseif arg1 == DROPDOWN_SORT_MODIFIEDAT then
-		print("5")
 	end
+end
+
+--not clean
+local function onSortDropdownMenuItemClicked(self, arg1, arg2, checked)
+	if arg1 == DROPDOWN_SORT_ASCENDING then
+		TOM.Core.sortState.ascending = true
+		TOM.Core.sortState.descending = false
+	elseif arg1 == DROPDOWN_SORT_DESCENDING then
+		TOM.Core.sortState.descending = true
+		TOM.Core.sortState.ascending = false
+	elseif arg1 == DROPDOWN_SORT_NAME then
+		TOM.Core.sortState.name = true
+		TOM.Core.sortState.createdAt = false
+		TOM.Core.sortState.modifiedAt = false
+	elseif arg1 == DROPDOWN_SORT_CREATEDAT then
+		TOM.Core.sortState.createdAt = true
+		TOM.Core.sortState.name = false
+		TOM.Core.sortState.modifiedAt = false
+	elseif arg1 == DROPDOWN_SORT_MODIFIEDAT then
+		TOM.Core.sortState.modifiedAt = true
+		TOM.Core.sortState.name = false
+		TOM.Core.sortState.createdAt = false
+	end
+	UIDropDownMenu_Initialize(TOM.Input.SortOutfitsDropdown, initSortDropdown, "MENU")
+	TOM.Core.SortCache()
+	TOM.Display.Redraw()
 end
 
 local function initOutfitDropdown(frame, level, menuList)
 	local info = UIDropDownMenu_CreateInfo()
-	info.func = onDropdownMenuItemClicked
+	info.func = onOutfitDropdownMenuItemClicked
 	info.notCheckable = true
 	info.text, info.arg1 = "Set favorite", DROPDOWN_TOGGLEFAVORITE
 	UIDropDownMenu_AddButton(info)
@@ -97,23 +115,24 @@ local function initOutfitDropdown(frame, level, menuList)
 	UIDropDownMenu_AddButton(info)
 end
 
+--not clean
 local function initSortDropdown(frame, level, menuList)
 	local info, titles = UIDropDownMenu_CreateInfo(), UIDropDownMenu_CreateInfo()
-	info.func = onDropdownMenuItemClicked
+	info.func = onSortDropdownMenuItemClicked
 	titles.isTitle, titles.notCheckable = true, true
 	titles.text = "Type"
 	UIDropDownMenu_AddButton(titles)
-	info.text, info.arg1 = "Ascending", DROPDOWN_SORT_ASCENDING
+	info.text, info.arg1, info.checked = "Ascending", DROPDOWN_SORT_ASCENDING, TOM.Core.sortState.ascending
 	UIDropDownMenu_AddButton(info)
-	info.text, info.arg1 = "Descending", DROPDOWN_SORT_DESCENDING
+	info.text, info.arg1, info.checked = "Descending", DROPDOWN_SORT_DESCENDING, TOM.Core.sortState.descending
 	UIDropDownMenu_AddButton(info)
 	titles.text = "Parameter"
 	UIDropDownMenu_AddButton(titles)
-	info.text, info.arg1 = "Name", DROPDOWN_SORT_NAME
+	info.text, info.arg1, info.checked = "Name", DROPDOWN_SORT_NAME, TOM.Core.sortState.name
 	UIDropDownMenu_AddButton(info)
-	info.text, info.arg1 = "Date created", DROPDOWN_SORT_CREATEDAT
+	info.text, info.arg1, info.checked = "Date created", DROPDOWN_SORT_CREATEDAT, TOM.Core.sortState.createdAt
 	UIDropDownMenu_AddButton(info)
-	info.text, info.arg1 = "Last modification", DROPDOWN_SORT_MODIFIEDAT
+	info.text, info.arg1, info.checked = "Last modification", DROPDOWN_SORT_MODIFIEDAT, TOM.Core.sortState.modifiedAt
 	UIDropDownMenu_AddButton(info)
 end
 
