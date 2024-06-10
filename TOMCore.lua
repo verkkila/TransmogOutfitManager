@@ -205,7 +205,6 @@ function TOM.Core.DeleteOutfit(modelFrame)
 				if entry.dbIndex > cacheEntry.dbIndex then entry.dbIndex = entry.dbIndex - 1 end
 			end
 			cacheSize = cacheSize - 1
-			if TOM.appliedOutfit == outfit then TOM.appliedOutfit = nil end
 		end
 	end
 end

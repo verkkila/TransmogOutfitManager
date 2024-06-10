@@ -117,6 +117,7 @@ function TOM.Display.Redraw(self)
 	TOM.Display.UpdatePageText()
 	TOM.Display.UpdatePageButtons()
 	if TOM.Display.GetCurrentPage() > TOM.Display.NumPages() then TOM.Input.PreviousPageButton:Click("LeftButton") end
+	TOM.Core.appliedOutfit = nil
 	for row = 1, 2 do
 		for column = 1, 4 do
 			local modelFrame = TOM.Display.GetModelFrame(row, column)

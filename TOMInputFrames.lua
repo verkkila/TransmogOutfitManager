@@ -98,6 +98,7 @@ local function deleteDialogOnAccept(self)
 	TOM.Core.DeleteOutfit(TOM.Display.selectedModelFrame)
 	TOM.Core.SortCache()
 	TOM.Display.Redraw()
+	TOM.Display.UpdateSaveButton()
 end
 
 StaticPopupDialogs["TransmogOutfitManager_DeleteDialog"] = {
