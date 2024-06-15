@@ -100,7 +100,8 @@ end
 
 local function passesFilter(outfitName)
 	if TOM.Core.filterText ~= nil and TOM.Core.filterText ~= "" then
-		si = string.find(outfitName, TOM.Core.filterText)
+		if not outfitName then return true end
+		si = string.find(string.lower(outfitName), string.lower(TOM.Core.filterText), 1, true)
 		return si ~= nil
 	end
 	return true
