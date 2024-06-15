@@ -1,3 +1,8 @@
+### 1.2.1
+
+Added the ability to sort and filter outfits.  
+Fixed bugs related to saving and deleting outfits.  
+
 ### 1.2.0
 
 New feature: Share outfits between characters of the same class. After updating to 1.2.0 you need to have logged in
