@@ -10,7 +10,8 @@ local currentDisplay = {}
 local ROWS = 0
 local COLS = 0
 
---store sort state here so as not to create a dependency on Display/Input (i.e. query state from them)
+--store sort and filter state here so as not to create a dependency on Display/Input (i.e. query state from them)
+TOM.Core.filterText = nil
 TOM.Core.sortState = {
 	["ascending"] = true,
 	["descending"] = false,
@@ -97,9 +98,19 @@ local function favcmp(a, b)
 	return aIsFavorited and not bIsFavorited
 end
 
+local function passesFilter(outfitName)
+	if TOM.Core.filterText ~= nil and TOM.Core.filterText ~= "" then
+		si = string.find(outfitName, TOM.Core.filterText)
+		return si ~= nil
+	end
+	return true
+end
+
 local function isValidOutfitForPlayer(dbIndex)
 	local myName, myRealm, myClass = TOM.Core.GetPlayerInfo()
+	local outfitName = TOM.DB.GetOutfit(dbIndex).name
 	if TOM.DB.GetOutfitMetadata(dbIndex, TOM.DB.Keys["OWNER_CLASS"]) == myClass then
+		if not passesFilter(outfitName) then return false end
 		if not TOM.Options.shareOutfits then
 			return TOM.DB.GetOutfitMetadata(dbIndex, TOM.DB.Keys["OWNER_NAME"]) == myName
 		end

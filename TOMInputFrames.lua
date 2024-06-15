@@ -36,10 +36,12 @@ TOM.Input.ShareOutfitsButton:SetPoint("CENTER", TOM.Display.Container, "TOPLEFT"
 TOM.Input.ShareOutfitsButton.Text:SetText("Show outfits from other characters")
 
 TOM.Input.FilterOutfitsBox = CreateFrame("EditBox", nil, TOM.Display.Container, "SearchBoxTemplate")
+Mixin(TOM.Input.FilterOutfitsBox, WardrobeCollectionFrameSearchBoxMixin)
 TOM.Input.FilterOutfitsBox:ClearAllPoints()
 TOM.Input.FilterOutfitsBox:SetPoint("LEFT", TOM.Display.Container, "TOPRIGHT", -289, -28)
 TOM.Input.FilterOutfitsBox:SetSize(119, 35)
 TOM.Input.FilterOutfitsBox:SetAutoFocus(false)
+TOM.Input.FilterOutfitsBox:SetMaxLetters(15)
 
 TOM.Input.SortOutfitsButton = CreateFrame("Button", nil, TOM.Display.Container, "UIMenuButtonStretchTemplate")
 TOM.Input.SortOutfitsButton:ClearAllPoints()

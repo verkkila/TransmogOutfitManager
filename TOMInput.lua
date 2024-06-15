@@ -56,6 +56,17 @@ local function shareOutfitsButtonOnClick(self, button, down)
 	TOM.Display.Redraw()
 end
 
+local function filterOutfitsOnTextChanged(self, userInput)
+	TOM.Core.filterText = self:GetText()
+	if self:GetText() ~= "" then
+		self.Instructions:SetAlpha(0)
+	else
+		self.Instructions:SetAlpha(1)
+	end
+	TOM.Core.Refresh()
+	TOM.Display.Redraw()
+end
+
 local function sortOutfitsButtonOnClick(self, button, down)
 	ToggleDropDownMenu(1, nil, TOM.Input.SortOutfitsDropdown, "cursor", 3, -3)
 end
@@ -148,4 +159,5 @@ TOM.Input.SaveOutfitButton:SetScript("OnClick", saveOutfitButtonOnClick)
 TOM.Input.PreviousPageButton:SetScript("OnClick", previousPageButtonOnClick)
 TOM.Input.NextPageButton:SetScript("OnClick", nextPageButtonOnClick)
 TOM.Input.ShareOutfitsButton:SetScript("OnClick", shareOutfitsButtonOnClick)
+TOM.Input.FilterOutfitsBox:SetScript("OnTextChanged", filterOutfitsOnTextChanged)
 TOM.Input.SortOutfitsButton:SetScript("OnClick", sortOutfitsButtonOnClick)
