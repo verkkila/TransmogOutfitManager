@@ -4,20 +4,20 @@ TOM.Input = TOM.Input or {}
 
 TOM.Input.OutfitsButton = CreateFrame("Button", nil, WardrobeFrame, "UIPanelButtonTemplate")
 TOM.Input.OutfitsButton:ClearAllPoints()
-TOM.Input.OutfitsButton:SetPoint("TOPLEFT", 3, -60)
-TOM.Input.OutfitsButton:SetSize(60, 25)
+TOM.Input.OutfitsButton:SetPoint("TOPLEFT", 50, -32)
+TOM.Input.OutfitsButton:SetSize(60, 22)
 TOM.Input.OutfitsButton:SetText("Outfits")
 
 TOM.Input.OutfitNameBox = CreateFrame("EditBox", nil, WardrobeFrame, "InputBoxTemplate")
 TOM.Input.OutfitNameBox:ClearAllPoints()
-TOM.Input.OutfitNameBox:SetPoint("TOPLEFT", 70, -55)
-TOM.Input.OutfitNameBox:SetSize(173, 35)
+TOM.Input.OutfitNameBox:SetPoint("TOPLEFT", 115, -25)
+TOM.Input.OutfitNameBox:SetSize(130, 35)
 TOM.Input.OutfitNameBox:SetAutoFocus(false)
 
 TOM.Input.SaveOutfitButton = CreateFrame("Button", nil, WardrobeFrame, "UIPanelButtonTemplate")
 TOM.Input.SaveOutfitButton:ClearAllPoints()
-TOM.Input.SaveOutfitButton:SetPoint("TOPLEFT", 245, -60)
-TOM.Input.SaveOutfitButton:SetSize(60, 25)
+TOM.Input.SaveOutfitButton:SetPoint("TOPLEFT", 243, -32)
+TOM.Input.SaveOutfitButton:SetSize(60, 22)
 TOM.Input.SaveOutfitButton:SetText("Save")
 
 TOM.Input.PreviousPageButton = CreateFrame("Button", nil, TOM.Display.Container, "CollectionsPrevPageButton")

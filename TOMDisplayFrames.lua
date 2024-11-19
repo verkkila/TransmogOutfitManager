@@ -50,6 +50,16 @@ local SPACING = 10
 local OFFSET_X = 0
 local OFFSET_Y = 15
 
+local GetMouseFocus = function()
+	if _G.GetMouseFocus then
+		return _G.GetMouseFocus()
+	elseif _G.GetMouseFoci then
+		return _G.GetMouseFoci()[1] -- topmost
+	else
+		--TBD
+	end
+end
+
 local function addOutfitNameText(modelFrame)
 	modelFrame.OutfitName = modelFrame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
 	modelFrame.OutfitName:ClearAllPoints()
