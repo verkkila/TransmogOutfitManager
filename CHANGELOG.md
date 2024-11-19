@@ -1,3 +1,7 @@
+### 1.2.2
+
+Update for patch 4.4.1 compatibility
+
 ### 1.2.1
 
 Added the ability to sort and filter outfits.  
