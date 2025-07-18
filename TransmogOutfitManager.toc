@@ -1,5 +1,5 @@
 ## Interface: 50500
-## Version: 1.2.2
+## Version: 1.2.3
 ## Title: TransmogOutfitManager
 ## Notes: Saves your custom transmogs as preset outfits
 ## SavedVariables: TransmogOutfitManagerDBAccount
