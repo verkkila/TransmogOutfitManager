@@ -1,3 +1,7 @@
+### 1.2.3
+
+Update for patch 5.5.0 (MoP) compatibility
+
 ### 1.2.2
 
 Update for patch 4.4.1 compatibility
