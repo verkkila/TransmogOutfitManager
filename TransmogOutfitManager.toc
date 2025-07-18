@@ -1,4 +1,4 @@
-## Interface: 40402
+## Interface: 50500
 ## Version: 1.2.2
 ## Title: TransmogOutfitManager
 ## Notes: Saves your custom transmogs as preset outfits
