@@ -40,7 +40,6 @@ local SLOTID_TO_NAME = {
 	[15] = "BACKSLOT",
 	[16] = "MAINHANDSLOT",
 	[17] = "SECONDARYHANDSLOT",
-	[18] = "RANGEDSLOT",
 	[19] = "TABARDSLOT"
 }
 
@@ -228,7 +227,9 @@ end
 function TOM.Core.GetOutfit(page, row, column)
 	local cacheEntry = cache[prctoindex(page, row, column)]
 	if cacheEntry then
-		return TOM.DB.GetOutfit(cacheEntry.dbIndex)
+		local outfit = TOM.DB.GetOutfit(cacheEntry.dbIndex)
+		outfit.data["RANGEDSLOT"] = nil
+		return outfit
 	end
 end
 
