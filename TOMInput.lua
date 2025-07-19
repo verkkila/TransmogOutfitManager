@@ -109,7 +109,7 @@ local function onSortDropdownMenuItemClicked(self, arg1, arg2, checked)
 		TOM.Core.sortState.name = false
 		TOM.Core.sortState.createdAt = false
 	end
-	UIDropDownMenu_Initialize(TOM.Input.SortOutfitsDropdown, initSortDropdown, "MENU")
+	--UIDropDownMenu_Initialize(TOM.Input.SortOutfitsDropdown, initSortDropdown, "MENU")
 	TOM.Core.SortCache()
 	TOM.Display.Redraw()
 end
