@@ -121,6 +121,10 @@ function TOM.Display.Redraw(self)
 	for row = 1, 2 do
 		for column = 1, 4 do
 			local modelFrame = TOM.Display.GetModelFrame(row, column)
+			if not modelFrame then
+				--DebugPrint("nil modelFrame on row", row, " column", column)
+				return
+			end
 			local outfit = TOM.Core.GetOutfit(TOM.Display.GetCurrentPage(), row, column)
 			if outfit then
 				doBorders(outfit, row, column)
