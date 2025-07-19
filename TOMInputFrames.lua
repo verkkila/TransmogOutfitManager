@@ -85,10 +85,10 @@ StaticPopupDialogs["TransmogOutfitManager_RenameDialog"] = {
 	hasEditBox = true,
 	OnShow = function(self, data)
 		self.button1:Disable()
+		TOM.Display.Lock()
 	end,
 	EditBoxOnTextChanged = renameDialogOnTextChanged,
 	OnAccept = renameDialogOnAccept,
-	OnShow = TOM.Display.Lock,
 	OnHide = TOM.Display.Unlock,
 	timeout = 0,
 	whileDead = false,
