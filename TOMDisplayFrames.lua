@@ -77,7 +77,7 @@ local function addFavoriteIcon(modelFrame)
 end
 
 local function tryCreateTransmogInfo(outfit)
-	ret = {}
+	local ret = {}
 	for invSlotName, invSlotData in pairs(outfit.data) do
 		local loc = TransmogUtil.CreateTransmogLocation(invSlotName, Enum.TransmogType.Appearance, Enum.TransmogModification.Main)
 		local _, _, _, canTransmog = C_Transmog.GetSlotInfo(loc)
